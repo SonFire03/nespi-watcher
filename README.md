@@ -6,11 +6,13 @@ Dashboard local de surveillance réseau optimisé Raspberry Pi (léger, sans dé
 
 ### Vue globale du projet
 
-![NESPi Watcher - Vue globale](docs/images/nespi-watcher-overview.png)
+<img width="1536" height="1024" alt="53217cb3-4005-40b8-bbf9-dd3fa21633c6" src="https://github.com/user-attachments/assets/392b9b62-191e-483c-bb90-64903cfbb180" />
+
 
 ### Bot Telegram (alertes)
 
-![NESPi Watcher - Bot Telegram](docs/images/nespi-watcher-telegram-bot.png)
+<img width="1536" height="1024" alt="f88a1c53-cf1b-44a5-b811-3d3cada76afe" src="https://github.com/user-attachments/assets/db92f799-730c-4dfc-b191-5ecb6bd1391b" />
+
 
 ## Améliorations incluses
 
