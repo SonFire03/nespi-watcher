@@ -2,6 +2,16 @@
 
 NESPi Watcher est un dashboard web local de surveillance réseau, pensé pour Raspberry Pi 2 Model B (Raspberry Pi OS Legacy 32-bit), léger et stable.
 
+## Nouveautés V2
+
+- Scan automatique périodique (configurable)
+- Historique des scans en base SQLite
+- Endpoint statut enrichi (`/api/status`)
+- Endpoint historique scans (`/api/scans`)
+- Anti-chevauchement des scans (verrou)
+- Telegram en mode résumé (moins de spam) ou mode détaillé
+- Scripts robustes sans chemin codé en dur
+
 ## Fonctionnalités
 
 - Scan réseau local via `nmap` (`-sn`)
@@ -15,6 +25,8 @@ NESPi Watcher est un dashboard web local de surveillance réseau, pensé pour Ra
   - `GET /scan`
   - `GET /api/devices`
   - `GET /api/scan`
+  - `GET /api/status`
+  - `GET /api/scans`
 - Logs légers avec rotation
 
 ## Structure du projet
@@ -38,34 +50,16 @@ nespi-watcher/
     └── index.html
 ```
 
-## Pré-requis
-
-- Raspberry Pi OS Legacy 32-bit
-- Python 3
-- `sudo` disponible
-- Connexion réseau locale
-
 ## Installation sur Raspberry
 
 ```bash
-git clone <mon_repo_github> /home/soso/nespi-watcher
+git clone https://github.com/SonFire03/nespi-watcher.git /home/soso/nespi-watcher
 cd /home/soso/nespi-watcher
 chmod +x scripts/*.sh
 ./scripts/install.sh
 ```
 
-Le script `install.sh` :
-
-1. installe dépendances système (`python3`, `python3-venv`, `python3-pip`, `nmap`)
-2. crée `.venv`
-3. installe `requirements.txt`
-4. crée un fichier `.env` minimal si absent
-5. installe et active le service systemd
-6. démarre le service
-
-## Configuration
-
-Le projet lit les variables d'environnement suivantes (valeurs par défaut) :
+## Variables d'environnement
 
 ```env
 NETWORK_RANGE=192.168.1.0/24
@@ -73,39 +67,19 @@ APP_HOST=0.0.0.0
 APP_PORT=8080
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
+TELEGRAM_MODE=summary
 SCAN_TIMEOUT=60
+AUTO_SCAN_ENABLED=true
+SCAN_INTERVAL_SECONDS=600
+STARTUP_SCAN_ENABLED=false
+DB_PATH=devices.db
+LOG_LEVEL=INFO
 ```
 
-### Option 1 (simple)
+### Telegram
 
-Éditer `.env` puis exporter au shell avant lancement manuel.
-
-### Option 2 (service systemd)
-
-Pour rendre les variables persistantes pour le service, créer un override :
-
-```bash
-sudo systemctl edit nespi-watcher.service
-```
-
-Puis ajouter :
-
-```ini
-[Service]
-Environment=NETWORK_RANGE=192.168.1.0/24
-Environment=APP_HOST=0.0.0.0
-Environment=APP_PORT=8080
-Environment=TELEGRAM_BOT_TOKEN=
-Environment=TELEGRAM_CHAT_ID=
-Environment=SCAN_TIMEOUT=60
-```
-
-Ensuite :
-
-```bash
-sudo systemctl daemon-reload
-sudo systemctl restart nespi-watcher.service
-```
+- `TELEGRAM_MODE=summary` : 1 message récapitulatif par scan
+- `TELEGRAM_MODE=each` : 1 message par nouvel appareil
 
 ## Utilisation
 
@@ -113,15 +87,24 @@ sudo systemctl restart nespi-watcher.service
 - Healthcheck : `http://IP_DU_RASPBERRY:8080/health`
 - Scan manuel API : `http://IP_DU_RASPBERRY:8080/api/scan`
 - Liste appareils API : `http://IP_DU_RASPBERRY:8080/api/devices`
+- Statut service/API : `http://IP_DU_RASPBERRY:8080/api/status`
+- Historique scans : `http://IP_DU_RASPBERRY:8080/api/scans`
 
 ## Scripts utiles
 
-- `scripts/update.sh` :
-  - `git pull --ff-only`
-  - mise à jour dépendances Python
-  - redémarrage service
+- `scripts/install.sh`
+  - installe dépendances système
+  - crée venv et installe requirements
+  - installe service systemd avec le bon chemin réel du projet
 
-- `scripts/scan_once.sh` : lance un scan ponctuel depuis le shell
+- `scripts/update.sh`
+  - `git pull --ff-only`
+  - met à jour dépendances
+  - réinstalle le fichier service pour garder le bon chemin
+  - redémarre le service
+
+- `scripts/scan_once.sh`
+  - lance un scan manuel en CLI
 
 ## Logs
 
@@ -129,19 +112,10 @@ sudo systemctl restart nespi-watcher.service
 - Fichier : `logs/nespi-watcher.log`
 - Rotation : 512 KB x 3 backups
 
-Ce comportement limite l'usure SD et évite les logs volumineux.
-
-## Commandes systemd
+## Commandes utiles
 
 ```bash
 sudo systemctl status nespi-watcher.service
 sudo systemctl restart nespi-watcher.service
 sudo journalctl -u nespi-watcher.service -f
 ```
-
-## Notes robustesse
-
-- Si MAC absente : valeur `Inconnue`
-- Si hostname absent : valeur `Inconnu`
-- Si sortie nmap partielle/invalide : erreur loggée, application continue
-- Si Telegram non configuré : aucune erreur bloquante

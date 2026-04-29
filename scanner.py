@@ -1,4 +1,3 @@
-import json
 import logging
 import re
 import subprocess
@@ -23,15 +22,6 @@ def _normalize_mac(raw_mac: str) -> str:
 def _normalize_host(raw_host: str) -> str:
     host = (raw_host or "").strip()
     return host if host else UNKNOWN_HOST
-
-
-def _safe_get(dct: Dict, *keys, default=None):
-    current = dct
-    for key in keys:
-        if not isinstance(current, dict) or key not in current:
-            return default
-        current = current[key]
-    return current
 
 
 def scan_network(network_range: str, timeout: int = 60) -> List[Dict[str, str]]:

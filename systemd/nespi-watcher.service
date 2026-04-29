@@ -7,9 +7,9 @@ Wants=network-online.target
 Type=simple
 User=soso
 Group=soso
-WorkingDirectory=/home/soso/nespi-watcher
+WorkingDirectory=__PROJECT_DIR__
 Environment=PYTHONUNBUFFERED=1
-ExecStart=/home/soso/nespi-watcher/.venv/bin/python /home/soso/nespi-watcher/app.py
+ExecStart=__PROJECT_DIR__/.venv/bin/python __PROJECT_DIR__/app.py
 Restart=always
 RestartSec=5
 

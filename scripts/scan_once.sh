@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_DIR="/home/soso/nespi-watcher"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 
 cd "$PROJECT_DIR"
 
@@ -13,6 +14,6 @@ from app import db, process_scan, setup_logging
 
 setup_logging()
 db.init_db()
-result = process_scan()
+result = process_scan(source="manual-script")
 print(result)
 PYEOF

@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-PROJECT_DIR="/home/soso/nespi-watcher"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 SERVICE_NAME="nespi-watcher.service"
 
 cd "$PROJECT_DIR"
@@ -28,13 +29,18 @@ APP_HOST=0.0.0.0
 APP_PORT=8080
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
+TELEGRAM_MODE=summary
 SCAN_TIMEOUT=60
+AUTO_SCAN_ENABLED=true
+SCAN_INTERVAL_SECONDS=600
+STARTUP_SCAN_ENABLED=false
 ENVEOF
   echo "Fichier .env créé."
 fi
 
 echo "[5/6] Installation service systemd..."
-sudo cp systemd/nespi-watcher.service /etc/systemd/system/"$SERVICE_NAME"
+sed "s|__PROJECT_DIR__|$PROJECT_DIR|g" systemd/nespi-watcher.service > /tmp/nespi-watcher.service
+sudo cp /tmp/nespi-watcher.service /etc/systemd/system/"$SERVICE_NAME"
 sudo systemctl daemon-reload
 sudo systemctl enable "$SERVICE_NAME"
 

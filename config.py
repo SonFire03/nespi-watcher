@@ -23,12 +23,26 @@ def _load_dotenv(path: str = ".env") -> None:
 _load_dotenv()
 
 
+def _get_bool(name: str, default: bool) -> bool:
+    raw = os.getenv(name)
+    if raw is None:
+        return default
+    return raw.strip().lower() in {"1", "true", "yes", "on"}
+
+
 class Config:
     NETWORK_RANGE = os.getenv("NETWORK_RANGE", "192.168.1.0/24")
     APP_HOST = os.getenv("APP_HOST", "0.0.0.0")
     APP_PORT = int(os.getenv("APP_PORT", "8080"))
+
     TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "").strip()
     TELEGRAM_CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "").strip()
+    TELEGRAM_MODE = os.getenv("TELEGRAM_MODE", "summary").strip().lower()
+
     SCAN_TIMEOUT = int(os.getenv("SCAN_TIMEOUT", "60"))
+    SCAN_INTERVAL_SECONDS = int(os.getenv("SCAN_INTERVAL_SECONDS", "600"))
+    AUTO_SCAN_ENABLED = _get_bool("AUTO_SCAN_ENABLED", True)
+    STARTUP_SCAN_ENABLED = _get_bool("STARTUP_SCAN_ENABLED", False)
+
     DB_PATH = os.getenv("DB_PATH", "devices.db")
     LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
