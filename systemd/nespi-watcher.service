@@ -5,8 +5,8 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-User=soso
-Group=soso
+User=__RUN_USER__
+Group=__RUN_USER__
 WorkingDirectory=__PROJECT_DIR__
 Environment=PYTHONUNBUFFERED=1
 ExecStart=__PROJECT_DIR__/.venv/bin/python __PROJECT_DIR__/app.py

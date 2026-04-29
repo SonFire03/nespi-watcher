@@ -2,6 +2,16 @@
 
 Dashboard local de surveillance réseau optimisé Raspberry Pi (léger, sans dépendances lourdes).
 
+## Présentation
+
+### Vue globale du projet
+
+![NESPi Watcher - Vue globale](docs/images/nespi-watcher-overview.png)
+
+### Bot Telegram (alertes)
+
+![NESPi Watcher - Bot Telegram](docs/images/nespi-watcher-telegram-bot.png)
+
 ## Améliorations incluses
 
 - UI V3 cyber (tabs, métriques, historique scans, filtres)
@@ -32,8 +42,8 @@ Dashboard local de surveillance réseau optimisé Raspberry Pi (léger, sans dé
 ## Installation
 
 ```bash
-git clone https://github.com/SonFire03/nespi-watcher.git /home/soso/nespi-watcher
-cd /home/soso/nespi-watcher
+git clone <URL_DU_REPO_GIT> <DOSSIER_LOCAL>
+cd <DOSSIER_LOCAL>
 chmod +x scripts/*.sh
 ./scripts/install.sh
 ```
@@ -79,3 +89,8 @@ sudo systemctl status nespi-watcher.service --no-pager
 curl -s http://127.0.0.1:8080/api/status
 curl -s "http://127.0.0.1:8080/api/devices?limit=50&status=online"
 ```
+
+## Assets README
+
+- `docs/images/nespi-watcher-overview.png`: image de présentation générale
+- `docs/images/nespi-watcher-telegram-bot.png`: image dédiée au bot Telegram
