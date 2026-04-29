@@ -11,6 +11,13 @@ cd "$PROJECT_DIR"
 echo "[1/4] Mise à jour du code..."
 git pull --ff-only
 
+if [ -f .env ] && grep -q '^DB_BACKUP_BEFORE_UPGRADE=true' .env; then
+  echo "[pre] Backup base avant upgrade..."
+  if [ -x scripts/backup.sh ]; then
+    ./scripts/backup.sh || true
+  fi
+fi
+
 # shellcheck disable=SC1091
 source .venv/bin/activate
 

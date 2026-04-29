@@ -3,7 +3,6 @@ import re
 import subprocess
 from typing import Dict, List
 
-
 logger = logging.getLogger(__name__)
 
 UNKNOWN_MAC = "Inconnue"
@@ -24,27 +23,17 @@ def _normalize_host(raw_host: str) -> str:
     return host if host else UNKNOWN_HOST
 
 
-def scan_network(network_range: str, timeout: int = 60) -> List[Dict[str, str]]:
-    """
-    Lance un scan nmap en JSON XML-converti via -oX - puis parsing XML léger.
-    On évite python-nmap pour limiter dépendances.
-    """
-    cmd = [
-        "nmap",
-        "-sn",
-        network_range,
-        "-oX",
-        "-",
-    ]
+def _build_cmd(network_range: str, profile: str, deep_ports: int) -> List[str]:
+    if profile == "deep":
+        return ["nmap", "-n", "-T3", f"--top-ports={max(1, deep_ports)}", network_range, "-oX", "-"]
+    return ["nmap", "-sn", network_range, "-oX", "-"]
+
+
+def scan_network(network_range: str, timeout: int = 60, profile: str = "quick", deep_ports: int = 100) -> List[Dict[str, str]]:
+    cmd = _build_cmd(network_range, profile, deep_ports)
 
     try:
-        completed = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=max(5, timeout),
-            check=False,
-        )
+        completed = subprocess.run(cmd, capture_output=True, text=True, timeout=max(5, timeout), check=False)
     except FileNotFoundError:
         logger.error("nmap introuvable. Installez nmap côté système.")
         return []
@@ -66,13 +55,35 @@ def scan_network(network_range: str, timeout: int = 60) -> List[Dict[str, str]]:
     return _parse_nmap_xml(xml_output)
 
 
+def scan_open_ports(ip: str, top_ports: int = 20, timeout: int = 15) -> List[int]:
+    cmd = ["nmap", "-n", "-T3", f"--top-ports={max(1, int(top_ports))}", ip, "-oG", "-"]
+    try:
+        completed = subprocess.run(cmd, capture_output=True, text=True, timeout=max(3, timeout), check=False)
+    except Exception as exc:
+        logger.warning("Port scan failed for %s: %s", ip, exc)
+        return []
+
+    out = completed.stdout or ""
+    ports = set()
+    for line in out.splitlines():
+        if "Ports:" not in line:
+            continue
+        _, right = line.split("Ports:", 1)
+        for chunk in right.split(","):
+            chunk = chunk.strip()
+            if not chunk:
+                continue
+            p = chunk.split("/", 1)[0].strip()
+            state = chunk.split("/")[1].strip() if "/" in chunk else ""
+            if p.isdigit() and state == "open":
+                ports.add(int(p))
+    return sorted(ports)
+
+
 def _parse_nmap_xml(xml_output: str) -> List[Dict[str, str]]:
     devices: List[Dict[str, str]] = []
-
-    # Parsing XML robuste avec xml.etree, tolérant aux champs manquants.
     try:
         import xml.etree.ElementTree as ET
-
         root = ET.fromstring(xml_output)
     except Exception as exc:
         logger.error("Impossible de parser la sortie XML nmap: %s", exc)
@@ -91,7 +102,6 @@ def _parse_nmap_xml(xml_output: str) -> List[Dict[str, str]]:
         for addr in host.findall("address"):
             addrtype = (addr.get("addrtype") or "").lower()
             addrval = (addr.get("addr") or "").strip()
-
             if addrtype == "ipv4" and addrval:
                 ip = addrval
             elif addrtype == "mac":
@@ -105,16 +115,8 @@ def _parse_nmap_xml(xml_output: str) -> List[Dict[str, str]]:
 
         if not ip:
             continue
+        devices.append({"ip": ip, "mac": mac, "hostname": hostname})
 
-        devices.append(
-            {
-                "ip": ip,
-                "mac": mac,
-                "hostname": hostname,
-            }
-        )
-
-    # Déduplication par IP+MAC tout en préservant ordre.
     seen = set()
     unique_devices = []
     for dev in devices:
