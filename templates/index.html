@@ -6,214 +6,367 @@
   <title>NESPi Watcher</title>
   <style>
     :root {
-      --bg: #081016;
-      --panel: #0f1b24;
-      --line: #1e3544;
-      --text: #d7f4ff;
-      --muted: #8cb8c8;
-      --accent: #00e0a4;
-      --warn: #ffcc66;
-      --danger: #ff7a7a;
+      --bg: #060b10;
+      --bg2: #08131b;
+      --panel: #0b1620;
+      --panel-2: #0f1f2d;
+      --line: #1a3345;
+      --text: #def8ff;
+      --muted: #86aebf;
+      --accent: #31e981;
+      --accent-2: #13b7ff;
+      --warn: #ffd05d;
+      --danger: #ff6f7e;
+      --ok: #4dff9a;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
     }
 
     * { box-sizing: border-box; }
 
     body {
       margin: 0;
-      background:
-        radial-gradient(circle at 20% 10%, rgba(0,224,164,0.08), transparent 30%),
-        radial-gradient(circle at 80% 90%, rgba(0,180,255,0.10), transparent 35%),
-        var(--bg);
       color: var(--text);
       font-family: "DejaVu Sans Mono", "Liberation Mono", monospace;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(49,233,129,0.07), transparent 32%),
+        radial-gradient(circle at 85% 10%, rgba(19,183,255,0.09), transparent 35%),
+        linear-gradient(170deg, var(--bg), var(--bg2));
+      min-height: 100vh;
     }
 
-    .wrap {
-      max-width: 1100px;
-      margin: 24px auto;
-      padding: 0 12px;
-    }
-
-    .header {
-      background: linear-gradient(135deg, #102734, #0d1c26);
-      border: 1px solid var(--line);
-      border-radius: 12px;
+    .shell {
+      max-width: 1280px;
+      margin: 0 auto;
       padding: 16px;
-      margin-bottom: 16px;
     }
 
-    h1 {
+    .hero {
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(49,233,129,0.08), rgba(19,183,255,0.06));
+      box-shadow: var(--shadow);
+      padding: 14px 16px;
+    }
+
+    .hero h1 {
       margin: 0;
-      font-size: 1.35rem;
+      font-size: 1.5rem;
       color: var(--accent);
-      letter-spacing: 0.5px;
+      letter-spacing: 0.8px;
     }
 
-    .meta {
-      margin-top: 8px;
+    .hero p {
+      margin: 6px 0 0;
       color: var(--muted);
       font-size: 0.9rem;
       line-height: 1.45;
     }
 
-    .stats {
+    .layout {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 8px;
-      margin-top: 12px;
+      grid-template-columns: 250px 1fr;
+      gap: 14px;
     }
 
-    .card {
+    .sidebar {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(180deg, #0a141d, #0b1722);
+      padding: 12px;
+      height: fit-content;
+      position: sticky;
+      top: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .brand {
+      margin-bottom: 10px;
+      padding: 10px;
       border: 1px solid var(--line);
       border-radius: 10px;
-      padding: 8px;
-      background: rgba(10, 30, 42, 0.7);
+      background: #0a1b27;
     }
 
-    .card .label {
+    .brand .title {
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 1.05rem;
+    }
+
+    .brand .sub {
       color: var(--muted);
       font-size: 0.8rem;
+      margin-top: 4px;
     }
 
-    .card .value {
-      margin-top: 4px;
-      font-size: 1rem;
+    .menu {
+      display: grid;
+      gap: 8px;
+    }
+
+    .menu button {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: #0d1b27;
       color: var(--text);
-      font-weight: 700;
+      padding: 10px;
+      border-radius: 9px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .menu button.active,
+    .menu button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: linear-gradient(90deg, rgba(49,233,129,0.14), rgba(19,183,255,0.07));
+    }
+
+    .main {
+      display: grid;
+      gap: 14px;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: linear-gradient(180deg, var(--panel), var(--panel-2));
+      box-shadow: var(--shadow);
+      padding: 14px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .toolbar h2 {
+      margin: 0;
+      font-size: 1.15rem;
+      color: #f0feff;
     }
 
     .actions {
-      margin-top: 12px;
       display: flex;
       gap: 8px;
       flex-wrap: wrap;
     }
 
-    button {
-      background: #122735;
-      color: var(--text);
+    .btn {
       border: 1px solid var(--line);
       border-radius: 8px;
+      background: #102232;
+      color: var(--text);
+      font-size: 0.87rem;
       padding: 8px 12px;
       cursor: pointer;
-      font-size: 0.9rem;
     }
 
-    button:hover { border-color: var(--accent); color: var(--accent); }
-    button:disabled { opacity: 0.7; cursor: wait; }
+    .btn.primary {
+      border-color: #1d6f4a;
+      background: linear-gradient(135deg, #175f40, #1f9d62);
+      color: #eafff4;
+      font-weight: 700;
+    }
 
-    .status {
-      margin-top: 10px;
+    .btn:hover { border-color: var(--accent); color: var(--accent); }
+    .btn.primary:hover { color: #fff; }
+    .btn:disabled { opacity: 0.6; cursor: wait; }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: rgba(5, 17, 25, 0.74);
+      padding: 10px;
+    }
+
+    .card .k { color: var(--muted); font-size: 0.78rem; }
+    .card .v { margin-top: 6px; font-size: 1.35rem; font-weight: 700; color: var(--accent); }
+
+    .statusbar {
+      margin-top: 8px;
+      font-size: 0.9rem;
       color: var(--warn);
-      font-size: 0.9rem;
-      min-height: 20px;
+      min-height: 18px;
     }
 
-    .status.error { color: var(--danger); }
+    .statusbar.error { color: var(--danger); }
 
     .table-wrap {
       overflow-x: auto;
       border: 1px solid var(--line);
       border-radius: 10px;
-      background: var(--panel);
     }
 
     table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 760px;
+      min-width: 800px;
     }
-
-    thead { background: #122735; }
 
     th, td {
-      text-align: left;
       padding: 10px;
       border-bottom: 1px solid var(--line);
-      font-size: 0.9rem;
+      text-align: left;
+      font-size: 0.88rem;
     }
 
-    th { color: var(--accent); font-weight: 600; }
-    tr:hover td { background: rgba(0, 224, 164, 0.06); }
+    th { color: var(--accent); background: rgba(16, 35, 49, 0.9); }
+    tr:hover td { background: rgba(49,233,129,0.05); }
 
-    .empty {
-      padding: 16px;
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid #1f6f4b;
+      color: #9dffca;
+      background: rgba(24, 94, 61, 0.25);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 0.76rem;
+      white-space: nowrap;
+    }
+
+    .hidden { display: none; }
+
+    .logs {
+      font-size: 0.85rem;
       color: var(--muted);
+      line-height: 1.5;
+      background: rgba(8, 17, 24, 0.72);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px;
+      white-space: pre-wrap;
     }
 
-    @media (max-width: 860px) {
-      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      .sidebar { position: static; }
+      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
-    @media (max-width: 680px) {
-      h1 { font-size: 1.1rem; }
-      .meta { font-size: 0.85rem; }
-      .stats { grid-template-columns: 1fr; }
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 1.2rem; }
+      .cards { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <div class="header">
-      <h1>NESPi Watcher - Dashboard Réseau</h1>
-      <div class="meta">
-        Réseau: {{ config.NETWORK_RANGE }} | App: {{ config.APP_HOST }}:{{ config.APP_PORT }}<br>
-        Auto-scan: {{ 'Actif' if runtime.auto_scan_enabled else 'Désactivé' }} | Intervalle: {{ runtime.scan_interval_seconds }}s | Telegram: {{ 'Actif' if runtime.telegram_enabled else 'Off' }} ({{ runtime.telegram_mode }})
-      </div>
+  <div class="shell">
+    <section class="hero">
+      <h1>NESPi-WATCHER</h1>
+      <p>
+        Surveillance locale légère pour Raspberry Pi. Réseau: {{ config.NETWORK_RANGE }} | App: {{ config.APP_HOST }}:{{ config.APP_PORT }}
+      </p>
+    </section>
 
-      <div class="stats">
-        <div class="card"><div class="label">Appareils connus</div><div class="value" id="totalDevices">{{ runtime.total_devices }}</div></div>
-        <div class="card"><div class="label">Dernier scan</div><div class="value" id="lastScanAt">{{ runtime.last_scan.scanned_at if runtime.last_scan else '-' }}</div></div>
-        <div class="card"><div class="label">Nouveaux (dernier scan)</div><div class="value" id="lastScanNew">{{ runtime.last_scan.new_count if runtime.last_scan else 0 }}</div></div>
-        <div class="card"><div class="label">Durée (dernier scan)</div><div class="value" id="lastScanDuration">{{ (runtime.last_scan.duration_ms|string + ' ms') if runtime.last_scan else '-' }}</div></div>
-      </div>
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="title">NESPi Watcher</div>
+          <div class="sub">Auto-scan {{ 'actif' if runtime.auto_scan_enabled else 'off' }} / {{ runtime.scan_interval_seconds }}s</div>
+        </div>
+        <div class="menu">
+          <button class="active" data-tab="dashboard">Dashboard</button>
+          <button data-tab="devices">Appareils</button>
+          <button data-tab="scans">Scans</button>
+          <button data-tab="logs">Infos</button>
+        </div>
+      </aside>
 
-      <div class="actions">
-        <button id="btnScan">Lancer un scan</button>
-        <button id="btnRefresh">Rafraîchir les appareils</button>
-      </div>
-      <div id="status" class="status"></div>
-    </div>
+      <main class="main">
+        <section id="tab-dashboard" class="panel">
+          <div class="toolbar">
+            <h2>Dashboard</h2>
+            <div class="actions">
+              <button id="btnScan" class="btn primary">Lancer un scan</button>
+              <button id="btnRefresh" class="btn">Rafraîchir</button>
+            </div>
+          </div>
 
-    <div class="table-wrap">
-      {% if devices and devices|length > 0 %}
-      <table id="devicesTable">
-        <thead>
-          <tr>
-            <th>IP</th>
-            <th>MAC</th>
-            <th>Hostname</th>
-            <th>Première détection</th>
-            <th>Dernière détection</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for d in devices %}
-          <tr>
-            <td>{{ d.ip }}</td>
-            <td>{{ d.mac }}</td>
-            <td>{{ d.hostname }}</td>
-            <td>{{ d.first_seen }}</td>
-            <td>{{ d.last_seen }}</td>
-          </tr>
-          {% endfor %}
-        </tbody>
-      </table>
-      {% else %}
-      <div class="empty" id="emptyText">Aucun appareil détecté pour le moment.</div>
-      <table id="devicesTable" style="display:none;">
-        <thead>
-          <tr>
-            <th>IP</th>
-            <th>MAC</th>
-            <th>Hostname</th>
-            <th>Première détection</th>
-            <th>Dernière détection</th>
-          </tr>
-        </thead>
-        <tbody></tbody>
-      </table>
-      {% endif %}
+          <div class="cards">
+            <div class="card"><div class="k">Appareils connus</div><div class="v" id="cTotal">{{ runtime.total_devices }}</div></div>
+            <div class="card"><div class="k">Nouveaux (dernier scan)</div><div class="v" id="cNew">{{ runtime.last_scan.new_count if runtime.last_scan else 0 }}</div></div>
+            <div class="card"><div class="k">Dernier scan</div><div class="v" id="cLast" style="font-size:1rem;">{{ runtime.last_scan.scanned_at if runtime.last_scan else '-' }}</div></div>
+            <div class="card"><div class="k">Durée</div><div class="v" id="cDur">{{ (runtime.last_scan.duration_ms|string + ' ms') if runtime.last_scan else '-' }}</div></div>
+          </div>
+
+          <div id="status" class="statusbar"></div>
+        </section>
+
+        <section id="tab-devices" class="panel hidden">
+          <div class="toolbar"><h2>Appareils détectés</h2></div>
+          <div class="table-wrap">
+            <table id="devicesTable">
+              <thead>
+                <tr>
+                  <th>IP</th>
+                  <th>MAC</th>
+                  <th>Hostname</th>
+                  <th>Première détection</th>
+                  <th>Dernière détection</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for d in devices %}
+                <tr>
+                  <td>{{ d.ip }}</td>
+                  <td>{{ d.mac }}</td>
+                  <td>{{ d.hostname }}</td>
+                  <td>{{ d.first_seen }}</td>
+                  <td>{{ d.last_seen }}</td>
+                  <td><span class="pill">● EN LIGNE</span></td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="tab-scans" class="panel hidden">
+          <div class="toolbar"><h2>Historique des scans</h2></div>
+          <div class="table-wrap">
+            <table id="scansTable">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Source</th>
+                  <th>Appareils</th>
+                  <th>Nouveaux</th>
+                  <th>Durée</th>
+                  <th>Statut</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+
+        <section id="tab-logs" class="panel hidden">
+          <div class="toolbar"><h2>Infos Service</h2></div>
+          <div class="logs" id="infoBlock">
+Auto-scan: {{ 'actif' if runtime.auto_scan_enabled else 'désactivé' }}
+Intervalle: {{ runtime.scan_interval_seconds }}s
+Telegram: {{ 'actif' if runtime.telegram_enabled else 'off' }} ({{ runtime.telegram_mode }})
+Réseau: {{ runtime.network_range }}
+          </div>
+        </section>
+      </main>
     </div>
   </div>
 
@@ -221,72 +374,90 @@
     const statusEl = document.getElementById('status');
     const btnScan = document.getElementById('btnScan');
     const btnRefresh = document.getElementById('btnRefresh');
-    const table = document.getElementById('devicesTable');
-    const tbody = table.querySelector('tbody');
-    const emptyText = document.getElementById('emptyText');
 
-    const totalDevicesEl = document.getElementById('totalDevices');
-    const lastScanAtEl = document.getElementById('lastScanAt');
-    const lastScanNewEl = document.getElementById('lastScanNew');
-    const lastScanDurationEl = document.getElementById('lastScanDuration');
+    const cTotal = document.getElementById('cTotal');
+    const cNew = document.getElementById('cNew');
+    const cLast = document.getElementById('cLast');
+    const cDur = document.getElementById('cDur');
 
-    function setStatus(msg, isError = false) {
+    const devicesTbody = document.querySelector('#devicesTable tbody');
+    const scansTbody = document.querySelector('#scansTable tbody');
+
+    function setStatus(msg, error = false) {
       statusEl.textContent = msg;
-      statusEl.classList.toggle('error', isError);
+      statusEl.classList.toggle('error', error);
+    }
+
+    function esc(v) {
+      return String(v ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
     }
 
     function renderDevices(devices) {
-      tbody.innerHTML = '';
-      if (!devices || devices.length === 0) {
-        table.style.display = 'none';
-        if (emptyText) emptyText.style.display = 'block';
-        return;
-      }
-
-      table.style.display = 'table';
-      if (emptyText) emptyText.style.display = 'none';
-
-      for (const d of devices) {
+      devicesTbody.innerHTML = '';
+      for (const d of devices || []) {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-          <td>${d.ip || ''}</td>
-          <td>${d.mac || 'Inconnue'}</td>
-          <td>${d.hostname || 'Inconnu'}</td>
-          <td>${d.first_seen || ''}</td>
-          <td>${d.last_seen || ''}</td>
+          <td>${esc(d.ip)}</td>
+          <td>${esc(d.mac || 'Inconnue')}</td>
+          <td>${esc(d.hostname || 'Inconnu')}</td>
+          <td>${esc(d.first_seen || '')}</td>
+          <td>${esc(d.last_seen || '')}</td>
+          <td><span class="pill">● EN LIGNE</span></td>
         `;
-        tbody.appendChild(tr);
+        devicesTbody.appendChild(tr);
+      }
+    }
+
+    function renderScans(scans) {
+      scansTbody.innerHTML = '';
+      for (const s of scans || []) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>${esc(s.scanned_at || '')}</td>
+          <td>${esc(s.source || '')}</td>
+          <td>${esc(s.scanned_count ?? 0)}</td>
+          <td>${esc(s.new_count ?? 0)}</td>
+          <td>${esc(s.duration_ms ?? 0)} ms</td>
+          <td>${esc(s.status || '')}</td>
+        `;
+        scansTbody.appendChild(tr);
       }
     }
 
     async function refreshStatus() {
-      try {
-        const res = await fetch('/api/status');
-        const data = await res.json();
-        if (data.status !== 'ok') return;
-        totalDevicesEl.textContent = String(data.total_devices || 0);
-        if (data.last_scan) {
-          lastScanAtEl.textContent = data.last_scan.scanned_at || '-';
-          lastScanNewEl.textContent = String(data.last_scan.new_count || 0);
-          lastScanDurationEl.textContent = `${data.last_scan.duration_ms || 0} ms`;
-        }
-      } catch (_) {}
+      const res = await fetch('/api/status');
+      const data = await res.json();
+      if (data.status !== 'ok') return;
+
+      cTotal.textContent = String(data.total_devices || 0);
+      if (data.last_scan) {
+        cNew.textContent = String(data.last_scan.new_count || 0);
+        cLast.textContent = data.last_scan.scanned_at || '-';
+        cDur.textContent = `${data.last_scan.duration_ms || 0} ms`;
+      }
     }
 
     async function refreshDevices() {
-      setStatus('Chargement des appareils...');
+      const res = await fetch('/api/devices');
+      const data = await res.json();
+      if (data.status !== 'ok') throw new Error('devices error');
+      renderDevices(data.devices);
+    }
+
+    async function refreshScans() {
+      const res = await fetch('/api/scans');
+      const data = await res.json();
+      if (data.status !== 'ok') throw new Error('scans error');
+      renderScans(data.scans);
+    }
+
+    async function fullRefresh() {
+      setStatus('Rafraîchissement...');
       try {
-        const res = await fetch('/api/devices');
-        const data = await res.json();
-        if (data.status !== 'ok') {
-          setStatus('Erreur récupération appareils.', true);
-          return;
-        }
-        renderDevices(data.devices || []);
-        await refreshStatus();
-        setStatus(`Appareils chargés: ${data.count}`);
+        await Promise.all([refreshStatus(), refreshDevices(), refreshScans()]);
+        setStatus('Données à jour.');
       } catch (_) {
-        setStatus('Erreur réseau pendant le rafraîchissement.', true);
+        setStatus('Erreur de rafraîchissement.', true);
       }
     }
 
@@ -296,19 +467,16 @@
       try {
         const res = await fetch('/api/scan');
         const data = await res.json();
-
         if (data.status === 'busy') {
           setStatus('Un scan est déjà en cours.', true);
           return;
         }
-
         if (data.status !== 'ok') {
           setStatus('Le scan a échoué.', true);
           return;
         }
-
-        setStatus(`Scan OK. ${data.scanned_count} appareils, ${data.new_count} nouveaux, ${data.duration_ms} ms.`);
-        await refreshDevices();
+        setStatus(`Scan OK: ${data.scanned_count} appareils, ${data.new_count} nouveaux, ${data.duration_ms} ms.`);
+        await fullRefresh();
       } catch (_) {
         setStatus('Erreur pendant le scan.', true);
       } finally {
@@ -316,9 +484,31 @@
       }
     }
 
-    btnScan.addEventListener('click', triggerScan);
-    btnRefresh.addEventListener('click', refreshDevices);
+    function initTabs() {
+      const buttons = document.querySelectorAll('.menu button');
+      const tabs = {
+        dashboard: document.getElementById('tab-dashboard'),
+        devices: document.getElementById('tab-devices'),
+        scans: document.getElementById('tab-scans'),
+        logs: document.getElementById('tab-logs')
+      };
 
+      buttons.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          buttons.forEach((b) => b.classList.remove('active'));
+          btn.classList.add('active');
+          const key = btn.dataset.tab;
+          Object.values(tabs).forEach((el) => el.classList.add('hidden'));
+          tabs[key].classList.remove('hidden');
+        });
+      });
+    }
+
+    btnScan.addEventListener('click', triggerScan);
+    btnRefresh.addEventListener('click', fullRefresh);
+
+    initTabs();
+    fullRefresh();
     setInterval(refreshStatus, 15000);
   </script>
 </body>
