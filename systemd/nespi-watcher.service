@@ -1,0 +1,17 @@
+[Unit]
+Description=NESPi Watcher Service
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=soso
+Group=soso
+WorkingDirectory=/home/soso/nespi-watcher
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/home/soso/nespi-watcher/.venv/bin/python /home/soso/nespi-watcher/app.py
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
