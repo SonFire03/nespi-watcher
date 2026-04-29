@@ -13,8 +13,6 @@ sudo apt-get install -y python3 python3-venv python3-pip nmap
 
 echo "[2/6] Création environnement virtuel..."
 python3 -m venv .venv
-
-# shellcheck disable=SC1091
 source .venv/bin/activate
 
 echo "[3/6] Installation dépendances Python..."
@@ -30,10 +28,19 @@ APP_PORT=8080
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
 TELEGRAM_MODE=summary
+ALERT_MIN_NEW_DEVICES=1
+ALERT_COOLDOWN_SECONDS=300
+ALERT_UNKNOWN_ONLY=false
 SCAN_TIMEOUT=60
 AUTO_SCAN_ENABLED=true
 SCAN_INTERVAL_SECONDS=600
 STARTUP_SCAN_ENABLED=false
+OFFLINE_AFTER_SECONDS=1800
+SCAN_API_KEY=
+IGNORE_IPS=
+IGNORE_MACS=
+MAX_SCAN_HISTORY_ROWS=5000
+LOG_LEVEL=INFO
 ENVEOF
   echo "Fichier .env créé."
 fi

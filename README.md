@@ -1,56 +1,35 @@
 # NESPi Watcher
 
-NESPi Watcher est un dashboard web local de surveillance réseau, pensé pour Raspberry Pi 2 Model B (Raspberry Pi OS Legacy 32-bit), léger et stable.
+Dashboard local de surveillance réseau optimisé Raspberry Pi (léger, sans dépendances lourdes).
 
-## Nouveautés V2
+## Améliorations incluses
 
-- Scan automatique périodique (configurable)
-- Historique des scans en base SQLite
-- Endpoint statut enrichi (`/api/status`)
-- Endpoint historique scans (`/api/scans`)
-- Anti-chevauchement des scans (verrou)
-- Telegram en mode résumé (moins de spam) ou mode détaillé
-- Scripts robustes sans chemin codé en dur
+- UI V3 cyber (tabs, métriques, historique scans, filtres)
+- Scan auto périodique configurable
+- Anti-chevauchement des scans
+- Historique scans avec rétention automatique (anti-usure SD)
+- Détection online/offline réelle (basée sur `last_seen`)
+- API devices avec pagination/recherche/filtre statut
+- Événements appareils (nouveau + changement hostname)
+- Alertes Telegram intelligentes :
+  - mode `summary` ou `each`
+  - seuil minimum (`ALERT_MIN_NEW_DEVICES`)
+  - cooldown anti-spam (`ALERT_COOLDOWN_SECONDS`)
+  - option inconnus uniquement (`ALERT_UNKNOWN_ONLY`)
+- Hardening systemd (`NoNewPrivileges`, `ProtectSystem`, etc.)
+- Ignore list IP/MAC
+- Clé API optionnelle pour lancer les scans manuels
 
-## Fonctionnalités
+## Endpoints
 
-- Scan réseau local via `nmap` (`-sn`)
-- Détection d'appareils (IP, MAC, hostname)
-- Stockage historique dans SQLite
-- Détection de nouveaux appareils
-- Alerte Telegram optionnelle
-- Dashboard web Flask
-- Endpoints API JSON :
-  - `GET /health`
-  - `GET /scan`
-  - `GET /api/devices`
-  - `GET /api/scan`
-  - `GET /api/status`
-  - `GET /api/scans`
-- Logs légers avec rotation
+- `GET /health`
+- `GET /api/status`
+- `GET /api/scans?limit=50`
+- `GET /api/devices?limit=200&offset=0&search=&status=all|online|offline`
+- `GET|POST /api/scan` (clé API optionnelle)
+- `GET /scan` (clé API optionnelle)
 
-## Structure du projet
-
-```text
-nespi-watcher/
-├── app.py
-├── scanner.py
-├── database.py
-├── alerts.py
-├── config.py
-├── requirements.txt
-├── README.md
-├── systemd/
-│   └── nespi-watcher.service
-├── scripts/
-│   ├── install.sh
-│   ├── update.sh
-│   └── scan_once.sh
-└── templates/
-    └── index.html
-```
-
-## Installation sur Raspberry
+## Installation
 
 ```bash
 git clone https://github.com/SonFire03/nespi-watcher.git /home/soso/nespi-watcher
@@ -59,63 +38,44 @@ chmod +x scripts/*.sh
 ./scripts/install.sh
 ```
 
-## Variables d'environnement
+## Variables `.env`
 
 ```env
 NETWORK_RANGE=192.168.1.0/24
 APP_HOST=0.0.0.0
 APP_PORT=8080
+
 TELEGRAM_BOT_TOKEN=
 TELEGRAM_CHAT_ID=
 TELEGRAM_MODE=summary
+ALERT_MIN_NEW_DEVICES=1
+ALERT_COOLDOWN_SECONDS=300
+ALERT_UNKNOWN_ONLY=false
+
 SCAN_TIMEOUT=60
 AUTO_SCAN_ENABLED=true
 SCAN_INTERVAL_SECONDS=600
 STARTUP_SCAN_ENABLED=false
-DB_PATH=devices.db
+OFFLINE_AFTER_SECONDS=1800
+
+SCAN_API_KEY=
+IGNORE_IPS=
+IGNORE_MACS=
+
+MAX_SCAN_HISTORY_ROWS=5000
 LOG_LEVEL=INFO
 ```
 
-### Telegram
+## Scripts
 
-- `TELEGRAM_MODE=summary` : 1 message récapitulatif par scan
-- `TELEGRAM_MODE=each` : 1 message par nouvel appareil
+- `scripts/install.sh`: install complet + service
+- `scripts/update.sh`: update code/deps + refresh service + restart
+- `scripts/scan_once.sh`: scan manuel en CLI
 
-## Utilisation
-
-- Dashboard : `http://IP_DU_RASPBERRY:8080`
-- Healthcheck : `http://IP_DU_RASPBERRY:8080/health`
-- Scan manuel API : `http://IP_DU_RASPBERRY:8080/api/scan`
-- Liste appareils API : `http://IP_DU_RASPBERRY:8080/api/devices`
-- Statut service/API : `http://IP_DU_RASPBERRY:8080/api/status`
-- Historique scans : `http://IP_DU_RASPBERRY:8080/api/scans`
-
-## Scripts utiles
-
-- `scripts/install.sh`
-  - installe dépendances système
-  - crée venv et installe requirements
-  - installe service systemd avec le bon chemin réel du projet
-
-- `scripts/update.sh`
-  - `git pull --ff-only`
-  - met à jour dépendances
-  - réinstalle le fichier service pour garder le bon chemin
-  - redémarre le service
-
-- `scripts/scan_once.sh`
-  - lance un scan manuel en CLI
-
-## Logs
-
-- Dossier : `logs/`
-- Fichier : `logs/nespi-watcher.log`
-- Rotation : 512 KB x 3 backups
-
-## Commandes utiles
+## Vérification
 
 ```bash
-sudo systemctl status nespi-watcher.service
-sudo systemctl restart nespi-watcher.service
-sudo journalctl -u nespi-watcher.service -f
+sudo systemctl status nespi-watcher.service --no-pager
+curl -s http://127.0.0.1:8080/api/status
+curl -s "http://127.0.0.1:8080/api/devices?limit=50&status=online"
 ```

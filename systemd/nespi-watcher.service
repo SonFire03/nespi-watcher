@@ -12,6 +12,13 @@ Environment=PYTHONUNBUFFERED=1
 ExecStart=__PROJECT_DIR__/.venv/bin/python __PROJECT_DIR__/app.py
 Restart=always
 RestartSec=5
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ReadWritePaths=__PROJECT_DIR__
 
 [Install]
 WantedBy=multi-user.target

@@ -5,286 +5,46 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>NESPi Watcher</title>
   <style>
-    :root {
-      --bg: #060b10;
-      --bg2: #08131b;
-      --panel: #0b1620;
-      --panel-2: #0f1f2d;
-      --line: #1a3345;
-      --text: #def8ff;
-      --muted: #86aebf;
-      --accent: #31e981;
-      --accent-2: #13b7ff;
-      --warn: #ffd05d;
-      --danger: #ff6f7e;
-      --ok: #4dff9a;
-      --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      color: var(--text);
-      font-family: "DejaVu Sans Mono", "Liberation Mono", monospace;
-      background:
-        radial-gradient(circle at 10% 0%, rgba(49,233,129,0.07), transparent 32%),
-        radial-gradient(circle at 85% 10%, rgba(19,183,255,0.09), transparent 35%),
-        linear-gradient(170deg, var(--bg), var(--bg2));
-      min-height: 100vh;
-    }
-
-    .shell {
-      max-width: 1280px;
-      margin: 0 auto;
-      padding: 16px;
-    }
-
-    .hero {
-      margin-bottom: 14px;
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      background: linear-gradient(135deg, rgba(49,233,129,0.08), rgba(19,183,255,0.06));
-      box-shadow: var(--shadow);
-      padding: 14px 16px;
-    }
-
-    .hero h1 {
-      margin: 0;
-      font-size: 1.5rem;
-      color: var(--accent);
-      letter-spacing: 0.8px;
-    }
-
-    .hero p {
-      margin: 6px 0 0;
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.45;
-    }
-
-    .layout {
-      display: grid;
-      grid-template-columns: 250px 1fr;
-      gap: 14px;
-    }
-
-    .sidebar {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: linear-gradient(180deg, #0a141d, #0b1722);
-      padding: 12px;
-      height: fit-content;
-      position: sticky;
-      top: 12px;
-      box-shadow: var(--shadow);
-    }
-
-    .brand {
-      margin-bottom: 10px;
-      padding: 10px;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: #0a1b27;
-    }
-
-    .brand .title {
-      color: var(--accent);
-      font-weight: 700;
-      font-size: 1.05rem;
-    }
-
-    .brand .sub {
-      color: var(--muted);
-      font-size: 0.8rem;
-      margin-top: 4px;
-    }
-
-    .menu {
-      display: grid;
-      gap: 8px;
-    }
-
-    .menu button {
-      width: 100%;
-      text-align: left;
-      border: 1px solid var(--line);
-      background: #0d1b27;
-      color: var(--text);
-      padding: 10px;
-      border-radius: 9px;
-      cursor: pointer;
-      font-size: 0.9rem;
-    }
-
-    .menu button.active,
-    .menu button:hover {
-      border-color: var(--accent);
-      color: var(--accent);
-      background: linear-gradient(90deg, rgba(49,233,129,0.14), rgba(19,183,255,0.07));
-    }
-
-    .main {
-      display: grid;
-      gap: 14px;
-    }
-
-    .panel {
-      border: 1px solid var(--line);
-      border-radius: 14px;
-      background: linear-gradient(180deg, var(--panel), var(--panel-2));
-      box-shadow: var(--shadow);
-      padding: 14px;
-    }
-
-    .toolbar {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-
-    .toolbar h2 {
-      margin: 0;
-      font-size: 1.15rem;
-      color: #f0feff;
-    }
-
-    .actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .btn {
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      background: #102232;
-      color: var(--text);
-      font-size: 0.87rem;
-      padding: 8px 12px;
-      cursor: pointer;
-    }
-
-    .btn.primary {
-      border-color: #1d6f4a;
-      background: linear-gradient(135deg, #175f40, #1f9d62);
-      color: #eafff4;
-      font-weight: 700;
-    }
-
-    .btn:hover { border-color: var(--accent); color: var(--accent); }
-    .btn.primary:hover { color: #fff; }
-    .btn:disabled { opacity: 0.6; cursor: wait; }
-
-    .cards {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 10px;
-    }
-
-    .card {
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      background: rgba(5, 17, 25, 0.74);
-      padding: 10px;
-    }
-
-    .card .k { color: var(--muted); font-size: 0.78rem; }
-    .card .v { margin-top: 6px; font-size: 1.35rem; font-weight: 700; color: var(--accent); }
-
-    .statusbar {
-      margin-top: 8px;
-      font-size: 0.9rem;
-      color: var(--warn);
-      min-height: 18px;
-    }
-
-    .statusbar.error { color: var(--danger); }
-
-    .table-wrap {
-      overflow-x: auto;
-      border: 1px solid var(--line);
-      border-radius: 10px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 800px;
-    }
-
-    th, td {
-      padding: 10px;
-      border-bottom: 1px solid var(--line);
-      text-align: left;
-      font-size: 0.88rem;
-    }
-
-    th { color: var(--accent); background: rgba(16, 35, 49, 0.9); }
-    tr:hover td { background: rgba(49,233,129,0.05); }
-
-    .pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      border: 1px solid #1f6f4b;
-      color: #9dffca;
-      background: rgba(24, 94, 61, 0.25);
-      border-radius: 999px;
-      padding: 2px 8px;
-      font-size: 0.76rem;
-      white-space: nowrap;
-    }
-
-    .hidden { display: none; }
-
-    .logs {
-      font-size: 0.85rem;
-      color: var(--muted);
-      line-height: 1.5;
-      background: rgba(8, 17, 24, 0.72);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 10px;
-      white-space: pre-wrap;
-    }
-
-    @media (max-width: 980px) {
-      .layout { grid-template-columns: 1fr; }
-      .sidebar { position: static; }
-      .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-
-    @media (max-width: 640px) {
-      .hero h1 { font-size: 1.2rem; }
-      .cards { grid-template-columns: 1fr; }
-    }
+    :root { --bg:#060b10; --bg2:#08131b; --panel:#0b1620; --panel2:#0f1f2d; --line:#1a3345; --text:#def8ff; --muted:#86aebf; --accent:#31e981; --warn:#ffd05d; --danger:#ff6f7e; --ok:#4dff9a; --off:#ffac6f; }
+    *{box-sizing:border-box}
+    body{margin:0;color:var(--text);font-family:"DejaVu Sans Mono","Liberation Mono",monospace;background:radial-gradient(circle at 10% 0%, rgba(49,233,129,.07), transparent 32%),radial-gradient(circle at 85% 10%, rgba(19,183,255,.09), transparent 35%),linear-gradient(170deg,var(--bg),var(--bg2));min-height:100vh}
+    .shell{max-width:1280px;margin:0 auto;padding:16px}
+    .hero,.sidebar,.panel{border:1px solid var(--line);border-radius:14px;background:linear-gradient(180deg,var(--panel),var(--panel2));padding:14px}
+    .hero{margin-bottom:14px;background:linear-gradient(135deg, rgba(49,233,129,.08), rgba(19,183,255,.06))}
+    .hero h1{margin:0;font-size:1.45rem;color:var(--accent)} .hero p{margin:6px 0 0;color:var(--muted);font-size:.9rem}
+    .layout{display:grid;grid-template-columns:240px 1fr;gap:14px}
+    .menu{display:grid;gap:8px}.menu button,.btn,input,select{border:1px solid var(--line);background:#102232;color:var(--text);border-radius:8px;padding:8px 10px}
+    .menu button.active,.menu button:hover,.btn:hover{border-color:var(--accent);color:var(--accent);cursor:pointer}
+    .main{display:grid;gap:14px}
+    .toolbar{display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:10px}
+    .actions,.filters{display:flex;gap:8px;flex-wrap:wrap}
+    .btn.primary{background:linear-gradient(135deg,#175f40,#1f9d62);border-color:#1d6f4a;color:#fff;font-weight:700}
+    .cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:10px}
+    .card{border:1px solid var(--line);border-radius:10px;background:rgba(5,17,25,.74);padding:10px}.k{color:var(--muted);font-size:.78rem}.v{margin-top:6px;font-size:1.2rem;font-weight:700;color:var(--accent)}
+    .statusbar{margin-top:8px;font-size:.9rem;color:var(--warn);min-height:18px}.statusbar.error{color:var(--danger)}
+    .table-wrap{overflow-x:auto;border:1px solid var(--line);border-radius:10px} table{width:100%;border-collapse:collapse;min-width:880px}
+    th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;font-size:.86rem} th{color:var(--accent);background:rgba(16,35,49,.9)} tr:hover td{background:rgba(49,233,129,.05)}
+    .pill{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:2px 8px;font-size:.75rem;white-space:nowrap}
+    .pill.online{border:1px solid #1f6f4b;color:#9dffca;background:rgba(24,94,61,.25)} .pill.offline{border:1px solid #7f4a22;color:#ffd2ad;background:rgba(115,62,23,.25)}
+    .hidden{display:none}.small{font-size:.8rem;color:var(--muted)}
+    @media (max-width:980px){.layout{grid-template-columns:1fr}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:640px){.cards{grid-template-columns:1fr}}
   </style>
 </head>
 <body>
   <div class="shell">
     <section class="hero">
       <h1>NESPi-WATCHER</h1>
-      <p>
-        Surveillance locale légère pour Raspberry Pi. Réseau: {{ config.NETWORK_RANGE }} | App: {{ config.APP_HOST }}:{{ config.APP_PORT }}
-      </p>
+      <p>Réseau: {{ config.NETWORK_RANGE }} | App: {{ config.APP_HOST }}:{{ config.APP_PORT }} | Offline après {{ runtime.offline_after_seconds }}s</p>
     </section>
 
     <div class="layout">
       <aside class="sidebar">
-        <div class="brand">
-          <div class="title">NESPi Watcher</div>
-          <div class="sub">Auto-scan {{ 'actif' if runtime.auto_scan_enabled else 'off' }} / {{ runtime.scan_interval_seconds }}s</div>
-        </div>
         <div class="menu">
           <button class="active" data-tab="dashboard">Dashboard</button>
           <button data-tab="devices">Appareils</button>
           <button data-tab="scans">Scans</button>
-          <button data-tab="logs">Infos</button>
+          <button data-tab="infos">Infos</button>
         </div>
       </aside>
 
@@ -297,41 +57,32 @@
               <button id="btnRefresh" class="btn">Rafraîchir</button>
             </div>
           </div>
-
           <div class="cards">
             <div class="card"><div class="k">Appareils connus</div><div class="v" id="cTotal">{{ runtime.total_devices }}</div></div>
             <div class="card"><div class="k">Nouveaux (dernier scan)</div><div class="v" id="cNew">{{ runtime.last_scan.new_count if runtime.last_scan else 0 }}</div></div>
-            <div class="card"><div class="k">Dernier scan</div><div class="v" id="cLast" style="font-size:1rem;">{{ runtime.last_scan.scanned_at if runtime.last_scan else '-' }}</div></div>
+            <div class="card"><div class="k">Dernier scan</div><div class="v" id="cLast" style="font-size:.92rem;">{{ runtime.last_scan.scanned_at if runtime.last_scan else '-' }}</div></div>
             <div class="card"><div class="k">Durée</div><div class="v" id="cDur">{{ (runtime.last_scan.duration_ms|string + ' ms') if runtime.last_scan else '-' }}</div></div>
           </div>
-
           <div id="status" class="statusbar"></div>
         </section>
 
         <section id="tab-devices" class="panel hidden">
-          <div class="toolbar"><h2>Appareils détectés</h2></div>
+          <div class="toolbar">
+            <h2>Appareils détectés</h2>
+            <div class="filters">
+              <input id="searchInput" placeholder="Recherche IP/MAC/hostname">
+              <select id="statusFilter"><option value="all">Tous</option><option value="online">Online</option><option value="offline">Offline</option></select>
+              <select id="limitSelect"><option>50</option><option selected>200</option><option>500</option></select>
+              <button id="btnApplyFilter" class="btn">Appliquer</button>
+            </div>
+          </div>
+          <div class="small" id="deviceMeta"></div>
           <div class="table-wrap">
             <table id="devicesTable">
-              <thead>
-                <tr>
-                  <th>IP</th>
-                  <th>MAC</th>
-                  <th>Hostname</th>
-                  <th>Première détection</th>
-                  <th>Dernière détection</th>
-                  <th>Statut</th>
-                </tr>
-              </thead>
+              <thead><tr><th>IP</th><th>MAC</th><th>Hostname</th><th>Première détection</th><th>Dernière détection</th><th>Statut</th></tr></thead>
               <tbody>
                 {% for d in devices %}
-                <tr>
-                  <td>{{ d.ip }}</td>
-                  <td>{{ d.mac }}</td>
-                  <td>{{ d.hostname }}</td>
-                  <td>{{ d.first_seen }}</td>
-                  <td>{{ d.last_seen }}</td>
-                  <td><span class="pill">● EN LIGNE</span></td>
-                </tr>
+                <tr><td>{{ d.ip }}</td><td>{{ d.mac }}</td><td>{{ d.hostname }}</td><td>{{ d.first_seen }}</td><td>{{ d.last_seen }}</td><td>{% if d.status == 'online' %}<span class="pill online">● EN LIGNE</span>{% else %}<span class="pill offline">● OFFLINE</span>{% endif %}</td></tr>
                 {% endfor %}
               </tbody>
             </table>
@@ -341,175 +92,44 @@
         <section id="tab-scans" class="panel hidden">
           <div class="toolbar"><h2>Historique des scans</h2></div>
           <div class="table-wrap">
-            <table id="scansTable">
-              <thead>
-                <tr>
-                  <th>Date</th>
-                  <th>Source</th>
-                  <th>Appareils</th>
-                  <th>Nouveaux</th>
-                  <th>Durée</th>
-                  <th>Statut</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
+            <table id="scansTable"><thead><tr><th>Date</th><th>Source</th><th>Appareils</th><th>Nouveaux</th><th>Durée</th><th>Statut</th></tr></thead><tbody></tbody></table>
           </div>
         </section>
 
-        <section id="tab-logs" class="panel hidden">
-          <div class="toolbar"><h2>Infos Service</h2></div>
-          <div class="logs" id="infoBlock">
-Auto-scan: {{ 'actif' if runtime.auto_scan_enabled else 'désactivé' }}
-Intervalle: {{ runtime.scan_interval_seconds }}s
-Telegram: {{ 'actif' if runtime.telegram_enabled else 'off' }} ({{ runtime.telegram_mode }})
-Réseau: {{ runtime.network_range }}
-          </div>
+        <section id="tab-infos" class="panel hidden">
+          <h2>Infos Service</h2>
+          <div class="small">Auto-scan: {{ 'actif' if runtime.auto_scan_enabled else 'off' }} | Intervalle: {{ runtime.scan_interval_seconds }}s</div>
+          <div class="small">Telegram: {{ 'actif' if runtime.telegram_enabled else 'off' }} ({{ runtime.telegram_mode }})</div>
+          <div class="small">Clé API scan: {{ 'active' if runtime.scan_api_key_enabled else 'inactive' }}</div>
+          <div class="small">Rétention historique: {{ runtime.history_retention_rows }} lignes</div>
         </section>
       </main>
     </div>
   </div>
 
-  <script>
-    const statusEl = document.getElementById('status');
-    const btnScan = document.getElementById('btnScan');
-    const btnRefresh = document.getElementById('btnRefresh');
+<script>
+const statusEl=document.getElementById('status');const btnScan=document.getElementById('btnScan');const btnRefresh=document.getElementById('btnRefresh');
+const cTotal=document.getElementById('cTotal');const cNew=document.getElementById('cNew');const cLast=document.getElementById('cLast');const cDur=document.getElementById('cDur');
+const devicesTbody=document.querySelector('#devicesTable tbody');const scansTbody=document.querySelector('#scansTable tbody');
+const searchInput=document.getElementById('searchInput');const statusFilter=document.getElementById('statusFilter');const limitSelect=document.getElementById('limitSelect');const deviceMeta=document.getElementById('deviceMeta');
 
-    const cTotal = document.getElementById('cTotal');
-    const cNew = document.getElementById('cNew');
-    const cLast = document.getElementById('cLast');
-    const cDur = document.getElementById('cDur');
+function setStatus(msg,error=false){statusEl.textContent=msg;statusEl.classList.toggle('error',error)}
+function esc(v){return String(v??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')}
 
-    const devicesTbody = document.querySelector('#devicesTable tbody');
-    const scansTbody = document.querySelector('#scansTable tbody');
+function renderDevices(devices,total,limit,offset){devicesTbody.innerHTML='';for(const d of devices||[]){const pill=d.status==='online'?'<span class="pill online">● EN LIGNE</span>':'<span class="pill offline">● OFFLINE</span>';const tr=document.createElement('tr');tr.innerHTML=`<td>${esc(d.ip)}</td><td>${esc(d.mac||'Inconnue')}</td><td>${esc(d.hostname||'Inconnu')}</td><td>${esc(d.first_seen||'')}</td><td>${esc(d.last_seen||'')}</td><td>${pill}</td>`;devicesTbody.appendChild(tr);}deviceMeta.textContent=`Affichage ${devices.length} / ${total} (limit=${limit}, offset=${offset})`;}
+function renderScans(scans){scansTbody.innerHTML='';for(const s of scans||[]){const tr=document.createElement('tr');tr.innerHTML=`<td>${esc(s.scanned_at||'')}</td><td>${esc(s.source||'')}</td><td>${esc(s.scanned_count??0)}</td><td>${esc(s.new_count??0)}</td><td>${esc(s.duration_ms??0)} ms</td><td>${esc(s.status||'')}</td>`;scansTbody.appendChild(tr)}}
 
-    function setStatus(msg, error = false) {
-      statusEl.textContent = msg;
-      statusEl.classList.toggle('error', error);
-    }
+async function refreshStatus(){const res=await fetch('/api/status');const data=await res.json();if(data.status!=='ok')return;cTotal.textContent=String(data.total_devices||0);if(data.last_scan){cNew.textContent=String(data.last_scan.new_count||0);cLast.textContent=data.last_scan.scanned_at||'-';cDur.textContent=`${data.last_scan.duration_ms||0} ms`;}}
+async function refreshDevices(){const params=new URLSearchParams({search:searchInput.value||'',status:statusFilter.value||'all',limit:limitSelect.value||'200',offset:'0'});const res=await fetch(`/api/devices?${params.toString()}`);const data=await res.json();if(data.status!=='ok')throw new Error('devices');renderDevices(data.devices,data.total,data.limit,data.offset)}
+async function refreshScans(){const res=await fetch('/api/scans?limit=50');const data=await res.json();if(data.status!=='ok')throw new Error('scans');renderScans(data.scans)}
+async function fullRefresh(){setStatus('Rafraîchissement...');try{await Promise.all([refreshStatus(),refreshDevices(),refreshScans()]);setStatus('Données à jour.')}catch(_){setStatus('Erreur de rafraîchissement.',true)}}
 
-    function esc(v) {
-      return String(v ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
-    }
+async function triggerScan(){btnScan.disabled=true;setStatus('Scan en cours...');try{const res=await fetch('/api/scan',{method:'POST'});const data=await res.json();if(data.status==='busy'){setStatus('Un scan est déjà en cours.',true);return;}if(data.status!=='ok'){setStatus(data.message||'Le scan a échoué.',true);return;}setStatus(`Scan OK: ${data.scanned_count} appareils, ${data.new_count} nouveaux, ${data.duration_ms} ms.`);await fullRefresh();}catch(_){setStatus('Erreur pendant le scan.',true)}finally{btnScan.disabled=false}}
 
-    function renderDevices(devices) {
-      devicesTbody.innerHTML = '';
-      for (const d of devices || []) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${esc(d.ip)}</td>
-          <td>${esc(d.mac || 'Inconnue')}</td>
-          <td>${esc(d.hostname || 'Inconnu')}</td>
-          <td>${esc(d.first_seen || '')}</td>
-          <td>${esc(d.last_seen || '')}</td>
-          <td><span class="pill">● EN LIGNE</span></td>
-        `;
-        devicesTbody.appendChild(tr);
-      }
-    }
+function initTabs(){const buttons=document.querySelectorAll('.menu button');const tabs={dashboard:document.getElementById('tab-dashboard'),devices:document.getElementById('tab-devices'),scans:document.getElementById('tab-scans'),infos:document.getElementById('tab-infos')};buttons.forEach((btn)=>btn.addEventListener('click',()=>{buttons.forEach((b)=>b.classList.remove('active'));btn.classList.add('active');Object.values(tabs).forEach((el)=>el.classList.add('hidden'));tabs[btn.dataset.tab].classList.remove('hidden')}));}
 
-    function renderScans(scans) {
-      scansTbody.innerHTML = '';
-      for (const s of scans || []) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td>${esc(s.scanned_at || '')}</td>
-          <td>${esc(s.source || '')}</td>
-          <td>${esc(s.scanned_count ?? 0)}</td>
-          <td>${esc(s.new_count ?? 0)}</td>
-          <td>${esc(s.duration_ms ?? 0)} ms</td>
-          <td>${esc(s.status || '')}</td>
-        `;
-        scansTbody.appendChild(tr);
-      }
-    }
-
-    async function refreshStatus() {
-      const res = await fetch('/api/status');
-      const data = await res.json();
-      if (data.status !== 'ok') return;
-
-      cTotal.textContent = String(data.total_devices || 0);
-      if (data.last_scan) {
-        cNew.textContent = String(data.last_scan.new_count || 0);
-        cLast.textContent = data.last_scan.scanned_at || '-';
-        cDur.textContent = `${data.last_scan.duration_ms || 0} ms`;
-      }
-    }
-
-    async function refreshDevices() {
-      const res = await fetch('/api/devices');
-      const data = await res.json();
-      if (data.status !== 'ok') throw new Error('devices error');
-      renderDevices(data.devices);
-    }
-
-    async function refreshScans() {
-      const res = await fetch('/api/scans');
-      const data = await res.json();
-      if (data.status !== 'ok') throw new Error('scans error');
-      renderScans(data.scans);
-    }
-
-    async function fullRefresh() {
-      setStatus('Rafraîchissement...');
-      try {
-        await Promise.all([refreshStatus(), refreshDevices(), refreshScans()]);
-        setStatus('Données à jour.');
-      } catch (_) {
-        setStatus('Erreur de rafraîchissement.', true);
-      }
-    }
-
-    async function triggerScan() {
-      btnScan.disabled = true;
-      setStatus('Scan en cours...');
-      try {
-        const res = await fetch('/api/scan');
-        const data = await res.json();
-        if (data.status === 'busy') {
-          setStatus('Un scan est déjà en cours.', true);
-          return;
-        }
-        if (data.status !== 'ok') {
-          setStatus('Le scan a échoué.', true);
-          return;
-        }
-        setStatus(`Scan OK: ${data.scanned_count} appareils, ${data.new_count} nouveaux, ${data.duration_ms} ms.`);
-        await fullRefresh();
-      } catch (_) {
-        setStatus('Erreur pendant le scan.', true);
-      } finally {
-        btnScan.disabled = false;
-      }
-    }
-
-    function initTabs() {
-      const buttons = document.querySelectorAll('.menu button');
-      const tabs = {
-        dashboard: document.getElementById('tab-dashboard'),
-        devices: document.getElementById('tab-devices'),
-        scans: document.getElementById('tab-scans'),
-        logs: document.getElementById('tab-logs')
-      };
-
-      buttons.forEach((btn) => {
-        btn.addEventListener('click', () => {
-          buttons.forEach((b) => b.classList.remove('active'));
-          btn.classList.add('active');
-          const key = btn.dataset.tab;
-          Object.values(tabs).forEach((el) => el.classList.add('hidden'));
-          tabs[key].classList.remove('hidden');
-        });
-      });
-    }
-
-    btnScan.addEventListener('click', triggerScan);
-    btnRefresh.addEventListener('click', fullRefresh);
-
-    initTabs();
-    fullRefresh();
-    setInterval(refreshStatus, 15000);
-  </script>
+document.getElementById('btnApplyFilter').addEventListener('click',refreshDevices);btnScan.addEventListener('click',triggerScan);btnRefresh.addEventListener('click',fullRefresh);
+initTabs();fullRefresh();setInterval(refreshStatus,15000);
+</script>
 </body>
 </html>
