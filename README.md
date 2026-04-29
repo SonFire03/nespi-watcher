@@ -6,13 +6,11 @@ Dashboard local de surveillance réseau optimisé Raspberry Pi (léger, sans dé
 
 ### Vue globale du projet
 
-<img width="1536" height="1024" alt="53217cb3-4005-40b8-bbf9-dd3fa21633c6" src="https://github.com/user-attachments/assets/392b9b62-191e-483c-bb90-64903cfbb180" />
-
+![NESPi Watcher - Vue globale](docs/images/cdf5d0e5-fe06-43c4-adbc-a226bb83d53b.png)
 
 ### Bot Telegram (alertes)
 
-<img width="1536" height="1024" alt="f88a1c53-cf1b-44a5-b811-3d3cada76afe" src="https://github.com/user-attachments/assets/db92f799-730c-4dfc-b191-5ecb6bd1391b" />
-
+![NESPi Watcher - Bot Telegram](docs/images/53217cb3-4005-40b8-bbf9-dd3fa21633c6.png)
 
 ## Améliorations incluses
 
@@ -22,21 +20,21 @@ Dashboard local de surveillance réseau optimisé Raspberry Pi (léger, sans dé
 - Historique scans avec rétention automatique (anti-usure SD)
 - Détection online/offline réelle (basée sur `last_seen`)
 - API devices avec pagination/recherche/filtre statut
-- Événements appareils (nouveau + changement hostname)
-- Alertes Telegram intelligentes :
-  - mode `summary` ou `each`
-  - seuil minimum (`ALERT_MIN_NEW_DEVICES`)
-  - cooldown anti-spam (`ALERT_COOLDOWN_SECONDS`)
-  - option inconnus uniquement (`ALERT_UNKNOWN_ONLY`)
+- API events (`/api/events`) pour les événements appareil
+- Événements appareils : nouveau, hostname changé, IP changée (même MAC)
+- Alertes Telegram intelligentes (mode, seuil, cooldown, inconnus uniquement)
 - Hardening systemd (`NoNewPrivileges`, `ProtectSystem`, etc.)
 - Ignore list IP/MAC
 - Clé API optionnelle pour lancer les scans manuels
+- Backup SQLite via script dédié
+- Tests unitaires + CI GitHub Actions
 
 ## Endpoints
 
 - `GET /health`
 - `GET /api/status`
 - `GET /api/scans?limit=50`
+- `GET /api/events?limit=50`
 - `GET /api/devices?limit=200&offset=0&search=&status=all|online|offline`
 - `GET|POST /api/scan` (clé API optionnelle)
 - `GET /scan` (clé API optionnelle)
@@ -83,6 +81,16 @@ LOG_LEVEL=INFO
 - `scripts/install.sh`: install complet + service
 - `scripts/update.sh`: update code/deps + refresh service + restart
 - `scripts/scan_once.sh`: scan manuel en CLI
+- `scripts/backup.sh`: backup compressé de `devices.db` dans `backups/`
+
+## Tests locaux
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt -r requirements-dev.txt
+pytest -q
+```
 
 ## Vérification
 
@@ -90,9 +98,5 @@ LOG_LEVEL=INFO
 sudo systemctl status nespi-watcher.service --no-pager
 curl -s http://127.0.0.1:8080/api/status
 curl -s "http://127.0.0.1:8080/api/devices?limit=50&status=online"
+curl -s "http://127.0.0.1:8080/api/events?limit=20"
 ```
-
-## Assets README
-
-- `docs/images/nespi-watcher-overview.png`: image de présentation générale
-- `docs/images/nespi-watcher-telegram-bot.png`: image dédiée au bot Telegram

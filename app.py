@@ -171,6 +171,23 @@ def process_scan(source: str = "manual") -> Dict:
                     old_value="",
                     new_value=hostname,
                 )
+
+                if mac != "Inconnue":
+                    recent_for_mac = db.get_recent_devices_by_mac(mac, limit=2)
+                    if len(recent_for_mac) >= 2:
+                        current = recent_for_mac[0]
+                        previous = recent_for_mac[1]
+                        old_ip = previous.get("ip", "")
+                        new_ip = current.get("ip", "")
+                        if old_ip and new_ip and old_ip != new_ip:
+                            db.log_device_event(
+                                happened_at=seen_at,
+                                ip=new_ip,
+                                mac=mac,
+                                event_type="ip_changed",
+                                old_value=old_ip,
+                                new_value=new_ip,
+                            )
             elif hostname_changed and prev:
                 db.log_device_event(
                     happened_at=seen_at,
@@ -255,6 +272,7 @@ def start_auto_scan_if_enabled() -> None:
 
 def get_runtime_status() -> Dict:
     last_scan = db.get_last_scan()
+    stats = db.get_db_stats()
     return {
         "status": "ok",
         "network_range": config.NETWORK_RANGE,
@@ -267,6 +285,7 @@ def get_runtime_status() -> Dict:
         "telegram_mode": config.TELEGRAM_MODE,
         "scan_api_key_enabled": bool(config.SCAN_API_KEY),
         "history_retention_rows": config.MAX_SCAN_HISTORY_ROWS,
+        "db_stats": stats,
     }
 
 
@@ -302,14 +321,16 @@ def api_devices():
         devices = [d for d in devices if d.get("status") == status_filter]
 
     total = db.count_devices(search=search)
-    return jsonify({
-        "status": "ok",
-        "count": len(devices),
-        "total": total,
-        "limit": max(1, min(int(limit), 1000)),
-        "offset": max(0, int(offset)),
-        "devices": devices,
-    })
+    return jsonify(
+        {
+            "status": "ok",
+            "count": len(devices),
+            "total": total,
+            "limit": max(1, min(int(limit), 1000)),
+            "offset": max(0, int(offset)),
+            "devices": devices,
+        }
+    )
 
 
 @app.route("/api/scan", methods=["GET", "POST"])
@@ -329,6 +350,12 @@ def api_status():
 def api_scans():
     limit = request.args.get("limit", default=20, type=int)
     return jsonify({"status": "ok", "scans": db.get_recent_scans(limit=limit)})
+
+
+@app.route("/api/events")
+def api_events():
+    limit = request.args.get("limit", default=50, type=int)
+    return jsonify({"status": "ok", "events": db.get_recent_events(limit=limit)})
 
 
 def main() -> None:

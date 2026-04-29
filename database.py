@@ -1,5 +1,6 @@
+import os
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Optional, Tuple
 
 
@@ -76,6 +77,20 @@ class DeviceDatabase:
             row = cur.fetchone()
             return dict(row) if row else None
 
+    def get_recent_devices_by_mac(self, mac: str, limit: int = 2) -> List[Dict]:
+        with self._connect() as conn:
+            cur = conn.execute(
+                """
+                SELECT ip, mac, hostname, first_seen, last_seen
+                FROM devices
+                WHERE mac = ?
+                ORDER BY last_seen DESC
+                LIMIT ?
+                """,
+                (mac, max(1, int(limit))),
+            )
+            return [dict(row) for row in cur.fetchall()]
+
     def upsert_device(self, ip: str, mac: str, hostname: str, seen_at: str) -> Tuple[bool, bool]:
         with self._connect() as conn:
             cur = conn.execute(
@@ -120,6 +135,19 @@ class DeviceDatabase:
                 (happened_at, ip, mac, event_type, old_value, new_value),
             )
             conn.commit()
+
+    def get_recent_events(self, limit: int = 50) -> List[Dict]:
+        with self._connect() as conn:
+            cur = conn.execute(
+                """
+                SELECT id, happened_at, ip, mac, event_type, old_value, new_value
+                FROM device_events
+                ORDER BY id DESC
+                LIMIT ?
+                """,
+                (max(1, min(int(limit), 500)),),
+            )
+            return [dict(row) for row in cur.fetchall()]
 
     def get_devices(self, limit: int = 200, offset: int = 0, search: str = "") -> List[Dict]:
         limit = max(1, min(int(limit), 1000))
@@ -217,6 +245,19 @@ class DeviceDatabase:
             )
             return [dict(row) for row in cur.fetchall()]
 
+    def get_db_stats(self) -> Dict:
+        with self._connect() as conn:
+            device_count = int(conn.execute("SELECT COUNT(*) FROM devices").fetchone()[0])
+            scan_count = int(conn.execute("SELECT COUNT(*) FROM scan_history").fetchone()[0])
+            event_count = int(conn.execute("SELECT COUNT(*) FROM device_events").fetchone()[0])
+        db_size_bytes = os.path.getsize(self.db_path) if os.path.exists(self.db_path) else 0
+        return {
+            "db_size_bytes": db_size_bytes,
+            "devices_count": device_count,
+            "scan_history_count": scan_count,
+            "event_count": event_count,
+        }
+
     @staticmethod
     def now_iso() -> str:
-        return datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+        return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
