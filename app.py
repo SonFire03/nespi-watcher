@@ -20,6 +20,7 @@ from alerts import send_telegram_alert
 from config import Config
 from database import DeviceDatabase
 from scanner import scan_network, scan_open_ports
+from cowrie_reader import get_clean_events, get_cowrie_stats
 
 app = Flask(__name__)
 config = Config()
@@ -718,6 +719,19 @@ def api_scans():
     for s in scans:
         s["scanned_at"] = _fmt_ts(s.get("scanned_at", ""))
     return jsonify({"status": "ok", "scans": scans})
+
+
+@app.route("/api/cowrie")
+def api_cowrie():
+    limit = request.args.get("limit", default=80, type=int)
+    events = get_clean_events(limit=max(1, min(limit, 300)))
+    return jsonify({"status": "ok", "events": events})
+
+
+@app.route("/api/cowrie/stats")
+def api_cowrie_stats():
+    limit = request.args.get("limit", default=300, type=int)
+    return jsonify(get_cowrie_stats(limit=max(1, min(limit, 1000))))
 
 
 @app.route("/api/events")
