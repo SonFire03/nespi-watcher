@@ -317,6 +317,7 @@
         </div>
         <div class="menu">
           <button class="active" data-tab="dashboard">Dashboard</button>
+          <button data-tab="cowrie">Cowrie</button>
           <button data-tab="devices">Appareils</button>
           <button data-tab="scans">Scans</button>
           <button data-tab="infos">Infos</button>
@@ -348,7 +349,9 @@
             <div class="stat"><div class="k">Dernier scan</div><div class="v" id="cLast" style="font-size:1rem;">{{ runtime.last_scan.scanned_at if runtime.last_scan else '-' }}</div></div>
             <div class="stat"><div class="k">Durée</div><div class="v" id="cDur">{{ (runtime.last_scan.duration_ms|string + ' ms') if runtime.last_scan else '-' }}</div></div>
           </div>
+        </section>
 
+        <section id="tab-cowrie" class="card section hidden">
           <h3>Activité SSH / Honeypot Cowrie</h3>
           <div class="stats-grid" style="margin-bottom:12px;">
             <div class="stat"><div class="k">Tentatives SSH échouées</div><div class="v" id="cowFailed">0</div></div>
@@ -356,7 +359,6 @@
             <div class="stat"><div class="k">Commandes capturées</div><div class="v" id="cowCommand">0</div></div>
             <div class="stat"><div class="k">IP la plus active</div><div class="v" id="cowTopIp">-</div></div>
           </div>
-
           <div id="cowrieError" class="statusbar error"></div>
           <div id="cowrieEvents" class="cowrie-list"></div>
         </section>
@@ -622,6 +624,7 @@ function initTabs() {
   const buttons = document.querySelectorAll('.menu button');
   const tabs = {
     dashboard: document.getElementById('tab-dashboard'),
+    cowrie: document.getElementById('tab-cowrie'),
     devices: document.getElementById('tab-devices'),
     scans: document.getElementById('tab-scans'),
     infos: document.getElementById('tab-infos')
