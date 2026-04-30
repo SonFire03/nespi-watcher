@@ -66,7 +66,20 @@
     .header { padding:14px; }
     .header-top { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
     .header h2 { margin:0; color:var(--accent); font-size:1.35rem; }
-    .header-meta { color:var(--muted); font-size:.9rem; margin-top:6px; }
+    .header-meta { color:var(--muted); font-size:.9rem; margin-top:6px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+    .api-badge {
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border:1px solid var(--line);
+      border-radius:999px;
+      padding:2px 9px;
+      font-size:.75rem;
+      color:var(--muted);
+      background:rgba(17,32,48,.5);
+    }
+    .api-badge.ok { color:#c8ffdf; border-color:rgba(61,255,159,.45); background:rgba(61,255,159,.12); }
+    .api-badge.err { color:#ffd5da; border-color:rgba(255,79,97,.45); background:rgba(255,79,97,.12); }
     .actions { display:flex; gap:8px; flex-wrap:wrap; }
     .btn {
       border:1px solid var(--line);
@@ -113,7 +126,7 @@
     .tag.failed { color:#ffd9dd; background:rgba(255,79,97,.2); border:1px solid rgba(255,79,97,.5); }
     .tag.success { color:#ddffe9; background:rgba(61,255,159,.15); border:1px solid rgba(61,255,159,.48); }
     .tag.command { color:#ffe9cd; background:rgba(255,179,73,.16); border:1px solid rgba(255,179,73,.45); }
-    .time { color:var(--muted); font-size:.8rem; }
+    .time { color:var(--muted); font-size:.76rem; letter-spacing:.02em; white-space:nowrap; }
     .event-body { margin-top:8px; display:grid; gap:5px; font-size:.88rem; }
     .event-body b { color:#b8d7ea; }
     .empty { color:var(--muted); font-style:italic; }
@@ -160,7 +173,10 @@
           <div class="header-top">
             <div>
               <h2>NESPi-WATCHER</h2>
-              <div class="header-meta">Réseau: {{ config.NETWORK_RANGE }} | App: {{ config.APP_HOST }}:{{ config.APP_PORT }} | Offline après {{ runtime.offline_after_seconds }}s</div>
+              <div class="header-meta">
+                <span>Réseau: {{ config.NETWORK_RANGE }} | App: {{ config.APP_HOST }}:{{ config.APP_PORT }} | Offline après {{ runtime.offline_after_seconds }}s</span>
+                <span id="apiBadge" class="api-badge">API: vérification...</span>
+              </div>
             </div>
             <div class="actions">
               <button id="btnScan" class="btn primary">Lancer un scan</button>
@@ -231,7 +247,7 @@
           <h3>Infos Service</h3>
           <div class="small">Auto-scan: {{ 'actif' if runtime.auto_scan_enabled else 'off' }} | Intervalle: {{ runtime.scan_interval_seconds }}s</div>
           <div class="small">Clé API scan: {{ 'active' if runtime.scan_api_key_enabled else 'inactive' }}</div>
-          <div class="small">Rétention historique: {{ runtime.history_retention_rows }} lignes</div>
+          <div class="small">Rétention historique: {{ config.MAX_SCAN_HISTORY_ROWS }} lignes</div>
         </section>
       </main>
     </div>
@@ -258,6 +274,7 @@ const cowFailedEl = document.getElementById('cowFailed');
 const cowSuccessEl = document.getElementById('cowSuccess');
 const cowCommandEl = document.getElementById('cowCommand');
 const cowTopIpEl = document.getElementById('cowTopIp');
+const apiBadgeEl = document.getElementById('apiBadge');
 
 function setStatus(msg, error=false) {
   statusEl.textContent = msg;
@@ -339,14 +356,25 @@ function renderCowrieEvents(events) {
 }
 
 async function refreshStatus() {
-  const res = await fetch('/api/status');
-  const data = await res.json();
-  if (data.status !== 'ok') return;
-  cTotal.textContent = String(data.total_devices || 0);
-  if (data.last_scan) {
-    cNew.textContent = String(data.last_scan.new_count || 0);
-    cLast.textContent = data.last_scan.scanned_at || '-';
-    cDur.textContent = `${data.last_scan.duration_ms || 0} ms`;
+  try {
+    const res = await fetch('/api/status');
+    if (!res.ok) throw new Error('status-http');
+    const data = await res.json();
+    if (data.status !== 'ok') throw new Error('status-payload');
+    cTotal.textContent = String(data.total_devices || 0);
+    if (data.last_scan) {
+      cNew.textContent = String(data.last_scan.new_count || 0);
+      cLast.textContent = data.last_scan.scanned_at || '-';
+      cDur.textContent = `${data.last_scan.duration_ms || 0} ms`;
+    }
+    apiBadgeEl.textContent = 'API: OK';
+    apiBadgeEl.classList.remove('err');
+    apiBadgeEl.classList.add('ok');
+  } catch (_) {
+    apiBadgeEl.textContent = 'API: indisponible';
+    apiBadgeEl.classList.remove('ok');
+    apiBadgeEl.classList.add('err');
+    throw _;
   }
 }
 
