@@ -182,6 +182,10 @@ def _after_request_cors(resp):
 def _parse_iso_z(value: str) -> datetime:
     if not value:
         return datetime.now(timezone.utc)
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except Exception:
+        return datetime.now(timezone.utc)
 
 
 def _now_utc() -> datetime:
@@ -205,10 +209,6 @@ def _fmt_ts(iso_z: str) -> str:
                 pass
         return dt.strftime("%Y-%m-%d %H:%M:%S")
     return iso_z
-    try:
-        return datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except Exception:
-        return datetime.now(timezone.utc)
 
 
 def _mask_ip(ip: str) -> str:
