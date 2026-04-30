@@ -6,149 +6,272 @@
   <title>NESPi Watcher</title>
   <style>
     :root {
-      --bg:#070d14;
-      --bg-2:#0a121c;
-      --panel:#0d1723;
-      --panel-2:#111f2e;
-      --line:#1f3242;
-      --text:#e8f5ff;
-      --muted:#8da6ba;
-      --accent:#2cff88;
-      --blue:#1fa9ff;
-      --red:#ff4f61;
-      --orange:#ffb349;
-      --green:#3dff9f;
-      --shadow:0 14px 30px rgba(0,0,0,.35);
+      --bg:#040915;
+      --bg-soft:#0a1324;
+      --panel:#0d1a2f;
+      --panel-2:#0f1f39;
+      --line:#22395a;
+      --line-soft:#1a2f4a;
+      --text:#e8f2ff;
+      --muted:#95abc5;
+      --accent:#58ff9f;
+      --accent-2:#3bb6ff;
+      --danger:#ff5f71;
+      --warn:#ffbc66;
+      --ok:#78ffb6;
+      --shadow:0 18px 34px rgba(0, 0, 0, .42);
+      --radius:14px;
     }
+
     * { box-sizing:border-box; }
+
     body {
       margin:0;
       color:var(--text);
       font-family:"DejaVu Sans Mono","Liberation Mono",monospace;
       background:
-        radial-gradient(circle at 8% 0%, rgba(44,255,136,.08), transparent 35%),
-        radial-gradient(circle at 93% 8%, rgba(31,169,255,.13), transparent 38%),
-        linear-gradient(168deg, var(--bg), var(--bg-2));
+        radial-gradient(900px 520px at -8% -10%, rgba(88,255,159,.08), transparent 58%),
+        radial-gradient(780px 500px at 108% 0%, rgba(59,182,255,.12), transparent 56%),
+        linear-gradient(165deg, var(--bg), #081428 58%, #071122);
       min-height:100vh;
     }
-    .shell { max-width:1320px; margin:0 auto; padding:18px; }
-    .app-grid { display:grid; grid-template-columns:240px 1fr; gap:14px; }
+
+    .shell { max-width:1400px; margin:0 auto; padding:24px 20px; }
+    .app-grid { display:grid; grid-template-columns:250px 1fr; gap:16px; align-items:start; }
+
     .card {
-      border:1px solid var(--line);
-      background:linear-gradient(180deg,var(--panel),var(--panel-2));
-      border-radius:14px;
+      background:linear-gradient(180deg, rgba(13,26,47,.93), rgba(15,31,57,.96));
+      border:1px solid var(--line-soft);
+      border-radius:var(--radius);
       box-shadow:var(--shadow);
     }
-    .sidebar { padding:14px; }
+
+    .sidebar {
+      position:sticky;
+      top:14px;
+      padding:14px;
+      overflow:hidden;
+    }
+
+    .sidebar::before {
+      content:"";
+      position:absolute;
+      inset:-40px -80px auto auto;
+      width:200px;
+      height:200px;
+      background:radial-gradient(circle, rgba(88,255,159,.16), transparent 65%);
+      pointer-events:none;
+    }
+
     .brand {
+      position:relative;
       border:1px solid var(--line);
       border-radius:12px;
-      padding:12px;
-      background:linear-gradient(135deg, rgba(44,255,136,.08), rgba(31,169,255,.07));
+      padding:14px;
+      background:linear-gradient(135deg, rgba(88,255,159,.11), rgba(59,182,255,.08));
       margin-bottom:12px;
     }
-    .brand h1 { margin:0; font-size:1.2rem; color:var(--accent); letter-spacing:.04em; }
-    .brand p { margin:6px 0 0; color:var(--muted); font-size:.84rem; }
-    .menu { display:grid; gap:8px; }
+
+    .brand h1 { margin:0; color:var(--accent); font-size:1.75rem; letter-spacing:.02em; line-height:1.05; }
+    .brand p { margin:6px 0 0; color:#bdd3ec; font-size:.85rem; }
+
+    .menu { display:grid; gap:9px; }
+
     .menu button {
-      border:1px solid var(--line);
-      background:#132233;
+      border:1px solid var(--line-soft);
+      background:linear-gradient(180deg, rgba(27,45,73,.58), rgba(20,36,58,.58));
       color:var(--text);
       border-radius:10px;
-      padding:10px;
+      padding:11px;
       text-align:left;
       cursor:pointer;
-      transition:.15s;
+      font-size:.95rem;
+      transition:all .16s ease;
     }
-    .menu button:hover, .menu button.active { border-color:var(--accent); color:var(--accent); }
 
-    .main { display:grid; gap:14px; }
-    .header { padding:14px; }
-    .header-top { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
-    .header h2 { margin:0; color:var(--accent); font-size:1.35rem; }
-    .header-meta { color:var(--muted); font-size:.9rem; margin-top:6px; display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
-    .api-badge {
-      display:inline-flex;
+    .menu button:hover,
+    .menu button.active {
+      border-color:rgba(88,255,159,.8);
+      box-shadow:0 0 0 1px rgba(88,255,159,.22) inset;
+      color:var(--accent);
+      transform:translateY(-1px);
+    }
+
+    .main { display:grid; gap:16px; }
+
+    .header { padding:16px; }
+
+    .header-top {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .title-block h2 { margin:0; color:var(--accent); font-size:2rem; letter-spacing:.02em; line-height:1; }
+
+    .header-meta {
+      margin-top:8px;
+      color:var(--muted);
+      font-size:.93rem;
+      display:flex;
+      flex-wrap:wrap;
       align-items:center;
-      gap:6px;
+      gap:10px;
+    }
+
+    .api-badge {
       border:1px solid var(--line);
       border-radius:999px;
-      padding:2px 9px;
-      font-size:.75rem;
+      padding:2px 10px;
+      font-size:.74rem;
       color:var(--muted);
-      background:rgba(17,32,48,.5);
+      background:rgba(10,22,39,.7);
     }
-    .api-badge.ok { color:#c8ffdf; border-color:rgba(61,255,159,.45); background:rgba(61,255,159,.12); }
-    .api-badge.err { color:#ffd5da; border-color:rgba(255,79,97,.45); background:rgba(255,79,97,.12); }
+
+    .api-badge.ok { color:#d6ffea; border-color:rgba(120,255,182,.48); background:rgba(120,255,182,.13); }
+    .api-badge.err { color:#ffdbe0; border-color:rgba(255,95,113,.48); background:rgba(255,95,113,.12); }
+
     .actions { display:flex; gap:8px; flex-wrap:wrap; }
+
     .btn {
-      border:1px solid var(--line);
-      background:#112030;
+      border:1px solid var(--line-soft);
+      background:linear-gradient(180deg, rgba(23,40,65,.8), rgba(18,33,53,.8));
       color:var(--text);
       border-radius:10px;
       padding:9px 12px;
+      font-size:.92rem;
       cursor:pointer;
+      transition:all .15s ease;
     }
+
     .btn:hover { border-color:var(--accent); color:var(--accent); }
+
     .btn.primary {
-      background:linear-gradient(135deg,#155f3f,#209a63);
-      border-color:#278557;
-      color:#fff;
+      background:linear-gradient(135deg, #2d8762, #3bb97f);
+      border-color:#4bc38c;
+      color:#f5fff9;
       font-weight:700;
     }
-    .statusbar { min-height:18px; margin-top:10px; color:var(--blue); font-size:.9rem; }
-    .statusbar.error { color:var(--red); }
+
+    .btn.primary:hover { color:#fff; transform:translateY(-1px); }
+
+    .statusbar { min-height:18px; margin-top:10px; font-size:.9rem; color:var(--accent-2); }
+    .statusbar.error { color:var(--danger); }
+
+    .section { padding:16px; }
+    .section h3 { margin:0 0 12px; color:var(--accent-2); font-size:1.05rem; }
 
     .stats-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; }
-    .stat { padding:12px; }
-    .stat .k { color:var(--muted); font-size:.8rem; }
-    .stat .v { margin-top:8px; font-size:1.15rem; font-weight:700; color:var(--accent); }
 
-    .section { padding:14px; }
-    .section h3 { margin:0 0 10px; color:var(--blue); font-size:1rem; }
+    .stat {
+      padding:12px;
+      border:1px solid var(--line-soft);
+      border-radius:11px;
+      background:linear-gradient(180deg, rgba(9,20,37,.72), rgba(11,24,43,.9));
+      min-height:88px;
+    }
 
-    .cowrie-list { display:grid; gap:8px; max-height:430px; overflow:auto; padding-right:4px; }
+    .stat .k { color:var(--muted); font-size:.79rem; }
+    .stat .v { margin-top:8px; color:var(--accent); font-size:1.52rem; font-weight:700; }
+
+    .cowrie-list {
+      display:grid;
+      gap:8px;
+      max-height:500px;
+      overflow:auto;
+      padding-right:4px;
+    }
+
     .event {
-      border:1px solid var(--line);
-      border-radius:10px;
-      background:rgba(8,20,31,.72);
+      border:1px solid var(--line-soft);
+      border-radius:11px;
+      background:linear-gradient(180deg, rgba(6,16,31,.88), rgba(9,19,35,.94));
       padding:10px;
     }
-    .event-head { display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap; }
+
+    .event-head { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+
     .tag {
       display:inline-flex;
       align-items:center;
       border-radius:999px;
       padding:2px 10px;
-      font-size:.75rem;
+      font-size:.72rem;
       font-weight:700;
+      letter-spacing:.02em;
     }
-    .tag.failed { color:#ffd9dd; background:rgba(255,79,97,.2); border:1px solid rgba(255,79,97,.5); }
-    .tag.success { color:#ddffe9; background:rgba(61,255,159,.15); border:1px solid rgba(61,255,159,.48); }
-    .tag.command { color:#ffe9cd; background:rgba(255,179,73,.16); border:1px solid rgba(255,179,73,.45); }
-    .time { color:var(--muted); font-size:.76rem; letter-spacing:.02em; white-space:nowrap; }
-    .event-body { margin-top:8px; display:grid; gap:5px; font-size:.88rem; }
-    .event-body b { color:#b8d7ea; }
+
+    .tag.failed { color:#ffe2e5; background:rgba(255,95,113,.2); border:1px solid rgba(255,95,113,.48); }
+    .tag.success { color:#e3ffee; background:rgba(120,255,182,.15); border:1px solid rgba(120,255,182,.44); }
+    .tag.command { color:#ffe8cb; background:rgba(255,188,102,.16); border:1px solid rgba(255,188,102,.45); }
+
+    .time { color:var(--muted); font-size:.76rem; white-space:nowrap; }
+    .event-body { margin-top:8px; display:grid; gap:4px; font-size:.89rem; }
+    .event-body b { color:#c3d8f0; }
     .empty { color:var(--muted); font-style:italic; }
 
-    .table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:10px; }
-    table { width:100%; border-collapse:collapse; min-width:860px; }
-    th, td { border-bottom:1px solid var(--line); padding:10px; text-align:left; font-size:.86rem; }
-    th { color:var(--accent); background:rgba(19,34,51,.9); }
-    tr:hover td { background:rgba(44,255,136,.05); }
-    .pill { display:inline-flex; border-radius:999px; padding:2px 8px; font-size:.75rem; }
-    .pill.online { color:#9dffca; border:1px solid #2f8d62; background:rgba(47,141,98,.2); }
-    .pill.offline { color:#ffd2ad; border:1px solid #8a5a34; background:rgba(138,90,52,.2); }
+    .filter-row { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:10px; }
+    .filter-row input,
+    .filter-row select,
+    .filter-row button { min-height:38px; }
+
+    .small { color:var(--muted); font-size:.88rem; }
+
+    .table-wrap {
+      overflow-x:auto;
+      border:1px solid var(--line-soft);
+      border-radius:11px;
+      background:rgba(8,16,30,.5);
+    }
+
+    table { width:100%; border-collapse:collapse; min-width:920px; }
+
+    th,
+    td {
+      padding:11px 10px;
+      border-bottom:1px solid rgba(34,57,90,.78);
+      text-align:left;
+      font-size:.89rem;
+    }
+
+    th {
+      position:sticky;
+      top:0;
+      z-index:1;
+      color:var(--accent);
+      background:linear-gradient(180deg, rgba(19,34,53,.98), rgba(16,30,48,.98));
+      letter-spacing:.01em;
+    }
+
+    tr:hover td { background:rgba(34,83,130,.17); }
+
+    .pill {
+      display:inline-flex;
+      border-radius:999px;
+      padding:2px 8px;
+      font-size:.74rem;
+      line-height:1.1;
+    }
+
+    .pill.online { color:#ceffe4; border:1px solid rgba(120,255,182,.45); background:rgba(120,255,182,.14); }
+    .pill.offline { color:#ffd7b3; border:1px solid rgba(255,188,102,.45); background:rgba(255,188,102,.15); }
 
     .hidden { display:none; }
-    .small { color:var(--muted); font-size:.85rem; }
 
-    @media (max-width:1080px) {
+    @media (max-width:1180px) {
       .app-grid { grid-template-columns:1fr; }
+      .sidebar { position:static; }
       .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
     }
-    @media (max-width:640px) {
+
+    @media (max-width:700px) {
+      .shell { padding:12px; }
+      .title-block h2 { font-size:1.5rem; }
       .stats-grid { grid-template-columns:1fr; }
+      .menu { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .menu button { text-align:center; }
     }
   </style>
 </head>
@@ -171,7 +294,7 @@
       <main class="main">
         <section class="header card">
           <div class="header-top">
-            <div>
+            <div class="title-block">
               <h2>NESPi-WATCHER</h2>
               <div class="header-meta">
                 <span>Réseau: {{ config.NETWORK_RANGE }} | App: {{ config.APP_HOST }}:{{ config.APP_PORT }} | Offline après {{ runtime.offline_after_seconds }}s</span>
@@ -187,19 +310,19 @@
         </section>
 
         <section id="tab-dashboard" class="card section">
-          <div class="stats-grid" style="margin-bottom:10px;">
-            <div class="card stat"><div class="k">Appareils connus</div><div class="v" id="cTotal">{{ runtime.total_devices }}</div></div>
-            <div class="card stat"><div class="k">Nouveaux dernier scan</div><div class="v" id="cNew">{{ runtime.last_scan.new_count if runtime.last_scan else 0 }}</div></div>
-            <div class="card stat"><div class="k">Dernier scan</div><div class="v" id="cLast" style="font-size:.92rem;">{{ runtime.last_scan.scanned_at if runtime.last_scan else '-' }}</div></div>
-            <div class="card stat"><div class="k">Durée</div><div class="v" id="cDur">{{ (runtime.last_scan.duration_ms|string + ' ms') if runtime.last_scan else '-' }}</div></div>
+          <div class="stats-grid" style="margin-bottom:12px;">
+            <div class="stat"><div class="k">Appareils connus</div><div class="v" id="cTotal">{{ runtime.total_devices }}</div></div>
+            <div class="stat"><div class="k">Nouveaux dernier scan</div><div class="v" id="cNew">{{ runtime.last_scan.new_count if runtime.last_scan else 0 }}</div></div>
+            <div class="stat"><div class="k">Dernier scan</div><div class="v" id="cLast" style="font-size:1rem;">{{ runtime.last_scan.scanned_at if runtime.last_scan else '-' }}</div></div>
+            <div class="stat"><div class="k">Durée</div><div class="v" id="cDur">{{ (runtime.last_scan.duration_ms|string + ' ms') if runtime.last_scan else '-' }}</div></div>
           </div>
 
           <h3>Activité SSH / Honeypot Cowrie</h3>
-          <div class="stats-grid" style="margin-bottom:10px;">
-            <div class="card stat"><div class="k">Tentatives SSH échouées</div><div class="v" id="cowFailed">0</div></div>
-            <div class="card stat"><div class="k">Connexions SSH réussies</div><div class="v" id="cowSuccess">0</div></div>
-            <div class="card stat"><div class="k">Commandes capturées</div><div class="v" id="cowCommand">0</div></div>
-            <div class="card stat"><div class="k">IP la plus active</div><div class="v" id="cowTopIp">-</div></div>
+          <div class="stats-grid" style="margin-bottom:12px;">
+            <div class="stat"><div class="k">Tentatives SSH échouées</div><div class="v" id="cowFailed">0</div></div>
+            <div class="stat"><div class="k">Connexions SSH réussies</div><div class="v" id="cowSuccess">0</div></div>
+            <div class="stat"><div class="k">Commandes capturées</div><div class="v" id="cowCommand">0</div></div>
+            <div class="stat"><div class="k">IP la plus active</div><div class="v" id="cowTopIp">-</div></div>
           </div>
 
           <div id="cowrieError" class="statusbar error"></div>
@@ -207,7 +330,7 @@
         </section>
 
         <section id="tab-devices" class="card section hidden">
-          <div class="actions" style="margin-bottom:10px;">
+          <div class="filter-row">
             <input id="searchInput" class="btn" placeholder="Recherche IP/MAC/hostname">
             <select id="statusFilter" class="btn"><option value="all">Tous</option><option value="online">Online</option><option value="offline">Offline</option></select>
             <select id="limitSelect" class="btn"><option>50</option><option selected>200</option><option>500</option></select>
